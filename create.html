@@ -14,11 +14,13 @@
     <button class="btn ghost" id="demoFillBtn" type="button">Pré-remplir une démo</button>
   </div>
 
+  <div class="stepper stepper-nav" id="stepper"></div>
+
   <div class="wrap">
-    <div class="stepper" id="stepper"></div>
+    <p class="hint" style="text-align:center; margin-top:-14px;">Remplis les étapes dans l'ordre que tu veux — clique un numéro ci-dessus pour y aller directement.</p>
 
     <!-- Step 1: Pêle-mêle -->
-    <section class="panel step" data-step="1">
+    <section class="panel step" data-step="1" id="step1">
       <h2>1. Pêle-mêle de photos</h2>
       <p class="hint">Ajoute 5 à 10 photos de famille, puis indique l'objet caché à retrouver dans l'une d'elles.</p>
       <div class="photo-grid" id="photoGrid"></div>
@@ -33,7 +35,7 @@
     </section>
 
     <!-- Step 2: Mots fléchés -->
-    <section class="panel step" data-step="2" hidden>
+    <section class="panel step" data-step="2" id="step2">
       <h2>2. Mots fléchés</h2>
       <p class="hint">Ajoute jusqu'à 10 mots avec leur définition. Coche « mot clé » pour le(s) mot(s) qui doivent apparaître dans le message final.</p>
       <div id="wordRows"></div>
@@ -45,7 +47,7 @@
     </section>
 
     <!-- Step 3: Rébus -->
-    <section class="panel step" data-step="3" hidden>
+    <section class="panel step" data-step="3" id="step3">
       <h2>3. Rébus</h2>
       <p class="hint">Choisis 2 à 4 emojis qui, mis bout à bout, évoquent le mot à deviner.</p>
       <div class="rebus-sequence" id="rebusSequence">
@@ -60,7 +62,7 @@
     </section>
 
     <!-- Step 4: Jeu des différences -->
-    <section class="panel step" data-step="4" hidden>
+    <section class="panel step" data-step="4" id="step4">
       <h2>4. Jeu des différences</h2>
       <p class="hint">Ajoute une photo, puis clique dessus à l'endroit où tu veux placer « la case différente » à retrouver.</p>
       <label class="upload-tile" style="max-width:200px; margin-bottom:16px;" id="diffUploadTile">
@@ -71,7 +73,7 @@
     </section>
 
     <!-- Step 5: Photo + vidéo souvenir -->
-    <section class="panel step" data-step="5" hidden>
+    <section class="panel step" data-step="5" id="step5">
       <h2>5. Photo de couverture + vidéo souvenir</h2>
       <p class="hint">La vidéo (2 à 20 minutes) sera débloquée une fois tous les jeux résolus.</p>
       <div class="field">
@@ -88,7 +90,7 @@
     </section>
 
     <!-- Step 6: Couleurs + mot final -->
-    <section class="panel step" data-step="6" hidden>
+    <section class="panel step" data-step="6" id="step6">
       <h2>6. Personnalisation</h2>
       <p class="hint">Choisis les 2 couleurs principales du tableau, et définis le mot final qui déverrouille la vidéo.</p>
       <div class="color-row">
@@ -107,23 +109,21 @@
       </div>
     </section>
 
-    <div class="actions">
-      <button class="btn ghost" id="backBtn" type="button">← Précédent</button>
-      <button class="btn" id="nextBtn" type="button">Suivant →</button>
-    </div>
-
-    <div id="generateWrap" style="text-align:center; margin-top:30px; display:none;">
-      <button class="btn" id="generateBtn" type="button" style="font-size:1.15rem; padding:16px 34px;">✨ Générer le tableau</button>
-    </div>
-
     <div id="shareWrap" style="margin-top:30px; display:none;">
       <div class="share-box">
         <h2>Ton tableau est prêt 🎉</h2>
-        <p>Partage ce lien (ou le QR code) avec la personne à qui il est destiné :</p>
+        <p>Partage ce lien avec la personne à qui il est destiné, ou récupère l'affiche à imprimer :</p>
         <input type="text" id="shareLink" readonly>
-        <a class="btn" id="openViewBtn" href="#" target="_blank">Ouvrir le tableau</a>
+        <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:10px;">
+          <a class="btn" id="openViewBtn" href="#" target="_blank">Ouvrir le tableau</a>
+          <a class="btn ghost" id="openPosterBtn" href="#" target="_blank">🖨️ Voir l'affiche à imprimer</a>
+        </div>
       </div>
     </div>
+  </div>
+
+  <div class="floating-generate">
+    <button class="btn" id="generateBtn" type="button">✨ Générer le tableau</button>
   </div>
 
   <script src="app.js"></script>

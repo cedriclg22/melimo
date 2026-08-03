@@ -1,49 +1,5 @@
 /* Melimo — logique du tableau interactif (côté destinataire) */
 
-function svgPlaceholder(bg, emoji) {
-  return 'data:image/svg+xml;utf8,' + encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><rect width="300" height="300" fill="${bg}"/><text x="50%" y="50%" font-size="110" text-anchor="middle" dominant-baseline="central">${emoji}</text></svg>`
-  );
-}
-
-function buildDemoBoard() {
-  const words = [
-    { word: 'PLAGE', clue: 'On y fait des châteaux de sable', key: true },
-    { word: 'FAMILLE', clue: "Ceux qu'on aime", key: false },
-    { word: 'ETE', clue: 'Saison des vacances', key: false },
-    { word: 'FORET', clue: "Pleine d'arbres", key: false }
-  ];
-  return {
-    photos: [
-      svgPlaceholder('#f1ddd0', '⚽'),
-      svgPlaceholder('#cfe8f0', '🏖️'),
-      svgPlaceholder('#f0d9e4', '👨‍👩‍👧‍👦'),
-      svgPlaceholder('#dcead0', '🌳'),
-      svgPlaceholder('#f6e2b8', '🐚')
-    ],
-    hiddenObject: 'Un baby-foot',
-    words,
-    crossword: generateCrossword(words),
-    rebusEmojis: ['⛵', '🍞'],
-    rebusAnswer: 'Bateau',
-    diffPhoto: svgPlaceholder('#dcead0', '🌳'),
-    diffPoint: { x: 62, y: 38 },
-    coverPhoto: svgPlaceholder('#f6e2b8', '🎬'),
-    video: null,
-    colorPrimary: '#d9527a',
-    colorSecondary: '#fbead9',
-    finalWord: 'Vacances'
-  };
-}
-
-function loadBoard() {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('demo')) return buildDemoBoard();
-  const id = params.get('id');
-  if (id) return Store.load(id);
-  return null;
-}
-
 const board = loadBoard();
 const root = document.getElementById('content');
 
@@ -53,24 +9,14 @@ if (!board) {
     <p>Le lien est peut-être incomplet. <a href="index.html">Retour à l'accueil</a></p>
   </div>`;
 } else {
-  document.documentElement.style.setProperty('--primary', board.colorPrimary || '#d9527a');
-  document.documentElement.style.setProperty('--secondary', board.colorSecondary || '#fbead9');
-  document.documentElement.style.setProperty('--primary-dark', shade(board.colorPrimary || '#d9527a', -18));
+  applyBoardColors(board);
   render(board);
-}
-
-function shade(hex, percent) {
-  const n = parseInt(hex.slice(1), 16);
-  let r = (n >> 16) & 0xff, g = (n >> 8) & 0xff, b = n & 0xff;
-  r = Math.max(0, Math.min(255, Math.round(r + (percent / 100) * 255)));
-  g = Math.max(0, Math.min(255, Math.round(g + (percent / 100) * 255)));
-  b = Math.max(0, Math.min(255, Math.round(b + (percent / 100) * 255)));
-  return `#${[r, g, b].map(v => v.toString(16).padStart(2, '0')).join('')}`;
 }
 
 function render(board) {
   root.innerHTML = `
     <div class="poster-photos" id="photosGrid"></div>
+    <p style="text-align:center;margin:-4px 0 10px;"><a class="btn ghost small" id="posterLink" href="#">🖨️ Voir l'affiche à imprimer</a></p>
 
     <div class="section-tag"><div class="num">1</div><div class="label">Objet caché : <span id="objAnswer" class="answer-fill"></span></div></div>
     <p class="hint">Retrouve l'objet caché parmi les photos ci-dessus.</p>
@@ -97,6 +43,8 @@ function render(board) {
 
     <div id="videoSection"></div>
   `;
+
+  document.getElementById('posterLink').href = 'poster.html' + window.location.search;
 
   renderPhotos(board);
   renderObjectGuess(board);

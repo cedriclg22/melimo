@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Affiche — Melimo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="topbar no-print">
+    <a class="logo" href="index.html">Melimo</a>
+    <div style="display:flex; gap:10px;">
+      <a class="btn ghost small" id="backToViewBtn" href="#">Version interactive</a>
+      <button class="btn small" id="printBtn" type="button">🖨️ Télécharger en PDF</button>
+    </div>
+  </div>
+
+  <div class="wrap" id="content">
+    <div class="empty-state">Chargement de l'affiche…</div>
+  </div>
+
+  <script src="app.js"></script>
+  <script src="poster.js"></script>
+</body>
+</html>

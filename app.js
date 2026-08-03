@@ -117,6 +117,119 @@ function generateCrossword(words) {
   return { width, height, placed: normalized };
 }
 
+/* ---------- Mise en page "mots fléchés" (définition + flèche dans la grille) ----------
+   Place la définition de chaque mot dans la case juste avant sa première lettre,
+   avec une flèche indiquant la direction — comme sur une vraie grille de mots fléchés.
+   Si la case est déjà prise (rare, grille dense), le mot bascule dans `overflowClues`. */
+function layoutFlechees(cw) {
+  const letterCells = {};
+  cw.placed.forEach(p => {
+    const dx = p.dir === 'H' ? 1 : 0, dy = p.dir === 'V' ? 1 : 0;
+    for (let i = 0; i < p.word.length; i++) {
+      const key = `${p.x + dx * i},${p.y + dy * i}`;
+      letterCells[key] = letterCells[key] || { letter: p.word[i], key: false };
+      if (p.key) letterCells[key].key = true;
+    }
+  });
+
+  const clueCells = {};
+  const overflowClues = [];
+  cw.placed.forEach(p => {
+    const isH = p.dir === 'H';
+    const cx = isH ? p.x - 1 : p.x;
+    const cy = isH ? p.y : p.y - 1;
+    const key = `${cx},${cy}`;
+    if (letterCells[key] || clueCells[key]) {
+      overflowClues.push(p);
+      return;
+    }
+    clueCells[key] = { text: p.clue, arrow: isH ? '→' : '↓', key: !!p.key };
+  });
+
+  const xs = [], ys = [];
+  Object.keys(letterCells).forEach(k => { const [x, y] = k.split(',').map(Number); xs.push(x); ys.push(y); });
+  Object.keys(clueCells).forEach(k => { const [x, y] = k.split(',').map(Number); xs.push(x); ys.push(y); });
+  const minX = Math.min(...xs), minY = Math.min(...ys);
+  const maxX = Math.max(...xs), maxY = Math.max(...ys);
+
+  function shift(map) {
+    const out = {};
+    Object.entries(map).forEach(([k, v]) => {
+      const [x, y] = k.split(',').map(Number);
+      out[`${x - minX},${y - minY}`] = v;
+    });
+    return out;
+  }
+
+  return {
+    width: maxX - minX + 1,
+    height: maxY - minY + 1,
+    letterCells: shift(letterCells),
+    clueCells: shift(clueCells),
+    overflowClues
+  };
+}
+
+/* ---------- Chargement d'un tableau (partagé entre view.html et poster.html) ---------- */
+function svgPlaceholder(bg, emoji) {
+  return 'data:image/svg+xml;utf8,' + encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><rect width="300" height="300" fill="${bg}"/><text x="50%" y="50%" font-size="110" text-anchor="middle" dominant-baseline="central">${emoji}</text></svg>`
+  );
+}
+
+function buildDemoBoard() {
+  const words = [
+    { word: 'PLAGE', clue: 'On y fait des châteaux de sable', key: true },
+    { word: 'FAMILLE', clue: "Ceux qu'on aime", key: false },
+    { word: 'ETE', clue: 'Saison des vacances', key: false },
+    { word: 'FORET', clue: "Pleine d'arbres", key: false }
+  ];
+  return {
+    photos: [
+      svgPlaceholder('#f1ddd0', '⚽'),
+      svgPlaceholder('#cfe8f0', '🏖️'),
+      svgPlaceholder('#f0d9e4', '👨‍👩‍👧‍👦'),
+      svgPlaceholder('#dcead0', '🌳'),
+      svgPlaceholder('#f6e2b8', '🐚')
+    ],
+    hiddenObject: 'Un baby-foot',
+    words,
+    crossword: generateCrossword(words),
+    rebusEmojis: ['⛵', '🍞'],
+    rebusAnswer: 'Bateau',
+    diffPhoto: svgPlaceholder('#dcead0', '🌳'),
+    diffPoint: { x: 62, y: 38 },
+    coverPhoto: svgPlaceholder('#f6e2b8', '🎬'),
+    video: null,
+    colorPrimary: '#d9527a',
+    colorSecondary: '#fbead9',
+    finalWord: 'Vacances'
+  };
+}
+
+function loadBoard() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('demo')) return buildDemoBoard();
+  const id = params.get('id');
+  if (id) return Store.load(id);
+  return null;
+}
+
+function shade(hex, percent) {
+  const n = parseInt(hex.slice(1), 16);
+  let r = (n >> 16) & 0xff, g = (n >> 8) & 0xff, b = n & 0xff;
+  r = Math.max(0, Math.min(255, Math.round(r + (percent / 100) * 255)));
+  g = Math.max(0, Math.min(255, Math.round(g + (percent / 100) * 255)));
+  b = Math.max(0, Math.min(255, Math.round(b + (percent / 100) * 255)));
+  return `#${[r, g, b].map(v => v.toString(16).padStart(2, '0')).join('')}`;
+}
+
+function applyBoardColors(board) {
+  document.documentElement.style.setProperty('--primary', board.colorPrimary || '#d9527a');
+  document.documentElement.style.setProperty('--secondary', board.colorSecondary || '#fbead9');
+  document.documentElement.style.setProperty('--primary-dark', shade(board.colorPrimary || '#d9527a', -18));
+}
+
 /* ---------- Banques de distracteurs pour les choix à gros boutons ---------- */
 const DISTRACTOR_POOL = [
   'Un vélo', 'Un chapeau', 'Un ballon', 'Une glace', 'Un cerf-volant',

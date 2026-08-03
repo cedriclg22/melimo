@@ -1,7 +1,6 @@
 /* Melimo — logique de l'assistant de création (côté famille) */
 
 const state = {
-  step: 1,
   photos: [], // data URLs
   hiddenObject: '',
   words: [ // {word, clue, key}
@@ -20,34 +19,33 @@ const state = {
 
 const TOTAL_STEPS = 6;
 
+/* Toutes les étapes sont visibles en même temps : le stepper n'est qu'une
+   navigation rapide (clic = scroll vers la section), avec un repère visuel
+   de la section actuellement à l'écran (scrollspy). */
 function renderStepper() {
   const el = document.getElementById('stepper');
   el.innerHTML = '';
   for (let i = 1; i <= TOTAL_STEPS; i++) {
-    const dot = document.createElement('div');
-    dot.className = 'step-dot' + (i === state.step ? ' active' : i < state.step ? ' done' : '');
+    const dot = document.createElement('a');
+    dot.className = 'step-dot';
+    dot.href = `#step${i}`;
     dot.textContent = i;
     el.appendChild(dot);
   }
 }
 
-function showStep(n) {
-  document.querySelectorAll('.step').forEach(s => {
-    s.hidden = Number(s.dataset.step) !== n;
-  });
-  document.getElementById('backBtn').disabled = n === 1;
-  const isLast = n === TOTAL_STEPS;
-  document.getElementById('nextBtn').style.display = isLast ? 'none' : '';
-  document.getElementById('generateWrap').style.display = isLast ? '' : 'none';
-  renderStepper();
+function initScrollspy() {
+  const dots = Array.from(document.querySelectorAll('.step-dot'));
+  const sections = Array.from(document.querySelectorAll('.step'));
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const i = sections.indexOf(entry.target);
+      if (i === -1) return;
+      dots[i].classList.toggle('active', entry.isIntersecting);
+    });
+  }, { rootMargin: '-40% 0px -50% 0px' });
+  sections.forEach(s => observer.observe(s));
 }
-
-document.getElementById('backBtn').addEventListener('click', () => {
-  if (state.step > 1) { state.step--; showStep(state.step); }
-});
-document.getElementById('nextBtn').addEventListener('click', () => {
-  if (state.step < TOTAL_STEPS) { state.step++; showStep(state.step); }
-});
 
 /* ---------- Step 1: photos ---------- */
 function renderPhotoGrid() {
@@ -227,10 +225,12 @@ document.getElementById('generateBtn').addEventListener('click', () => {
   Store.save(id, state);
   const url = new URL('view.html', window.location.href);
   url.searchParams.set('id', id);
+  const posterUrl = new URL('poster.html', window.location.href);
+  posterUrl.searchParams.set('id', id);
   document.getElementById('shareLink').value = url.toString();
   document.getElementById('openViewBtn').href = url.toString();
+  document.getElementById('openPosterBtn').href = posterUrl.toString();
   document.getElementById('shareWrap').style.display = '';
-  document.getElementById('generateWrap').style.display = 'none';
   document.getElementById('shareWrap').scrollIntoView({ behavior: 'smooth' });
 });
 
@@ -247,12 +247,6 @@ document.getElementById('demoFillBtn').addEventListener('click', () => {
   document.getElementById('colorSecondary').value = state.colorSecondary;
   document.getElementById('finalWord').value = state.finalWord;
 });
-
-function svgPlaceholder(bg, emoji) {
-  return 'data:image/svg+xml;utf8,' + encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><rect width="300" height="300" fill="${bg}"/><text x="50%" y="50%" font-size="110" text-anchor="middle" dominant-baseline="central">${emoji}</text></svg>`
-  );
-}
 
 function fillDemoData() {
   state.photos = [
@@ -281,8 +275,9 @@ function fillDemoData() {
 }
 
 /* init */
+renderStepper();
+initScrollspy();
 renderPhotoGrid();
 renderWordRows();
 renderEmojiPicker();
 renderRebusSequence();
-showStep(state.step);
