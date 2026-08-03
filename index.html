@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Melimo — Les souvenirs deviennent un jeu</title>
+<meta name="description" content="Melimo : un tableau familial personnalisé avec photos, mini-jeux et vidéo surprise, à envoyer à ceux que vous aimez.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
@@ -11,45 +12,179 @@
 <body>
   <div class="topbar">
     <a class="logo" href="index.html">Melimo</a>
-    <span class="tagline">Les souvenirs deviennent un jeu.</span>
+    <nav class="nav">
+      <a class="navlink" href="#comment-ca-marche">Comment ça marche</a>
+      <a class="navlink" href="#pourquoi">Pourquoi Melimo</a>
+      <a class="navlink" href="#tarifs">Tarifs</a>
+      <a class="btn small" href="create.html">Créer mon tableau</a>
+    </nav>
   </div>
 
+  <!-- HERO -->
   <div class="hero">
     <h1>Melimo 🧩</h1>
     <p>Un tableau familial personnalisé, plein de photos, de souvenirs et de mini-jeux, à envoyer à ceux qu'on aime. Une fois les jeux résolus, une vidéo surprise se débloque.</p>
+    <div class="hero-ctas">
+      <a class="btn" href="create.html">✨ Créer mon premier tableau</a>
+      <a class="btn ghost" href="view.html?demo=1">👀 Voir un exemple</a>
+    </div>
   </div>
 
-  <div class="choice-grid">
-    <a class="card" href="create.html">
-      <span class="emoji">🎨</span>
-      <h3>Créer un tableau</h3>
-      <p>Je suis la famille : je choisis les photos, je crée les jeux et j'envoie le tableau.</p>
-    </a>
-    <a class="card" href="view.html?demo=1">
-      <span class="emoji">👵👴</span>
-      <h3>Voir un tableau (démo)</h3>
-      <p>Je suis le destinataire : je résous les jeux du tableau et je débloque la vidéo surprise.</p>
-    </a>
-  </div>
-
-  <div class="wrap" style="padding-top:60px;">
-    <div class="panel" style="text-align:center;">
-      <h2>Tarifs envisagés</h2>
-      <div class="row" style="margin-top:20px;">
-        <div>
-          <h3 style="color:var(--primary-dark)">19,90 €/mois</h3>
-          <p class="hint">Un tableau chaque mois</p>
+  <!-- COMMENT CA MARCHE -->
+  <section class="landing" id="comment-ca-marche">
+    <div class="landing-inner">
+      <div class="section-head">
+        <span class="kicker">Comment ça marche</span>
+        <h2>Deux expériences, un seul tableau</h2>
+        <p>Vous créez, l'IA met en forme, vos proches jouent — sans rien avoir à écrire.</p>
+      </div>
+      <div class="tracks">
+        <div class="track">
+          <h3>🎨 Côté famille</h3>
+          <ol>
+            <li><b>Pêle-mêle</b> — choisissez 5 à 10 photos et l'objet caché à retrouver.</li>
+            <li><b>Mots fléchés</b> — ajoutez vos mots et définitions, l'IA vous aide si besoin.</li>
+            <li><b>Rébus</b> — sélectionnez des emojis pour faire deviner un mot.</li>
+            <li><b>Jeu des différences</b> — placez l'indice sur une photo souvenir.</li>
+            <li><b>Photo + vidéo</b> — ajoutez la vidéo surprise (2 à 20 min) qui sera débloquée à la fin.</li>
+          </ol>
         </div>
-        <div>
-          <h3 style="color:var(--primary-dark)">24,90 € / envoi</h3>
-          <p class="hint">Un tableau tous les deux mois</p>
-        </div>
-        <div>
-          <h3 style="color:var(--primary-dark)">29,90 €</h3>
-          <p class="hint">Création unique</p>
+        <div class="track">
+          <h3>👵👴 Côté destinataire</h3>
+          <ol>
+            <li>Il reçoit le tableau imprimé, avec un <b>QR code</b> à scanner.</li>
+            <li>Il joue aux 5 mini-jeux avec de <b>gros boutons</b>, rien à écrire.</li>
+            <li>Chaque jeu résolu révèle un indice du mot final.</li>
+            <li>Une fois tout résolu, la <b>vidéo surprise</b> se lance automatiquement.</li>
+            <li>Le <b>cadre</b> envoyé une première fois se réutilise à chaque nouvel envoi.</li>
+          </ol>
         </div>
       </div>
     </div>
-  </div>
+  </section>
+
+  <!-- POURQUOI / FEATURES -->
+  <section class="landing alt" id="pourquoi">
+    <div class="landing-inner">
+      <div class="section-head">
+        <span class="kicker">Pourquoi Melimo</span>
+        <h2>Plus qu'un cadre photo</h2>
+        <p>Un moment de complicité, pas juste un objet qu'on regarde une fois.</p>
+      </div>
+      <div class="feature-grid">
+        <div class="feature">
+          <span class="emoji">🖼️</span>
+          <h4>Pêle-mêle vivant</h4>
+          <p>Vos plus belles photos rassemblées, avec un objet caché à retrouver en famille.</p>
+        </div>
+        <div class="feature">
+          <span class="emoji">🧩</span>
+          <h4>Mots fléchés sur-mesure</h4>
+          <p>Générés automatiquement à partir de vos souvenirs, avec l'aide de l'IA si besoin.</p>
+        </div>
+        <div class="feature">
+          <span class="emoji">🖍️</span>
+          <h4>Rébus malicieux</h4>
+          <p>Des emojis à assembler pour deviner un mot — simple et ludique pour tous les âges.</p>
+        </div>
+        <div class="feature">
+          <span class="emoji">🔍</span>
+          <h4>Jeu des différences</h4>
+          <p>Une photo à observer de près pour dénicher le détail caché.</p>
+        </div>
+        <div class="feature">
+          <span class="emoji">🎬</span>
+          <h4>Vidéo surprise</h4>
+          <p>Débloquée uniquement une fois tous les jeux résolus — l'émotion en récompense.</p>
+        </div>
+        <div class="feature">
+          <span class="emoji">🖼️</span>
+          <h4>Cadre réutilisable</h4>
+          <p>Envoyé une fois, il accueille ensuite un nouveau poster à chaque envoi suivant.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- APERCU LIVE -->
+  <section class="landing">
+    <div class="landing-inner">
+      <div class="section-head">
+        <span class="kicker">Aperçu</span>
+        <h2>Essayez le tableau en direct</h2>
+        <p>Voici un vrai tableau Melimo, jouable directement ci-dessous.</p>
+      </div>
+      <div class="preview-frame-wrap">
+        <iframe src="view.html?demo=1" title="Aperçu d'un tableau Melimo"></iframe>
+      </div>
+      <div class="preview-cta">
+        <a class="btn ghost" href="view.html?demo=1">Ouvrir en plein écran</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- POSITIONNEMENT -->
+  <section class="landing alt">
+    <div class="landing-inner">
+      <div class="section-head">
+        <span class="kicker">Positionnement</span>
+        <h2>Différent d'un cadre photo connecté classique</h2>
+      </div>
+      <div class="compare">
+        <div class="col">
+          <div class="big">🖼️</div>
+          <p>Les cadres classiques affichent des photos qu'on regarde une fois, puis qu'on oublie.</p>
+        </div>
+        <div class="col us">
+          <div class="big">🧩</div>
+          <p>Melimo transforme les souvenirs en jeu, avec une vidéo surprise comme récompense — un vrai moment partagé.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TARIFS -->
+  <section class="landing" id="tarifs">
+    <div class="landing-inner">
+      <div class="section-head">
+        <span class="kicker">Tarifs envisagés</span>
+        <h2>Un format pour chaque famille</h2>
+      </div>
+      <div class="pricing-grid">
+        <div class="price-card">
+          <span class="amount">29,90 €</span>
+          <span class="period">création unique</span>
+          <p class="desc">Pour un anniversaire ou une occasion spéciale, sans engagement.</p>
+          <a class="btn ghost small" href="create.html">Créer mon tableau</a>
+        </div>
+        <div class="price-card featured">
+          <span class="badge">Le plus populaire</span>
+          <span class="amount">24,90 €</span>
+          <span class="period">tous les deux mois</span>
+          <p class="desc">Un nouveau tableau régulièrement, sans y penser à chaque fois.</p>
+          <a class="btn small" href="create.html">Créer mon tableau</a>
+        </div>
+        <div class="price-card">
+          <span class="amount">19,90 €</span>
+          <span class="period">par mois</span>
+          <p class="desc">Un tableau chaque mois pour ne jamais manquer un souvenir.</p>
+          <a class="btn ghost small" href="create.html">Créer mon tableau</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA FINAL -->
+  <section class="landing">
+    <div class="cta-banner">
+      <h2>Prêt à surprendre vos proches ?</h2>
+      <p>Créez votre premier tableau en quelques minutes, sans rien installer.</p>
+      <a class="btn" href="create.html">✨ Créer mon tableau</a>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    Melimo — Les souvenirs deviennent un jeu. · Disponible sur web et bientôt en app mobile.
+  </footer>
 </body>
 </html>
