@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Créer un tableau — Melimo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="topbar">
+    <a class="logo" href="index.html">Melimo</a>
+    <button class="btn ghost" id="demoFillBtn" type="button">Pré-remplir une démo</button>
+  </div>
+
+  <div class="wrap">
+    <div class="stepper" id="stepper"></div>
+
+    <!-- Step 1: Pêle-mêle -->
+    <section class="panel step" data-step="1">
+      <h2>1. Pêle-mêle de photos</h2>
+      <p class="hint">Ajoute 5 à 10 photos de famille, puis indique l'objet caché à retrouver dans l'une d'elles.</p>
+      <div class="photo-grid" id="photoGrid"></div>
+      <label class="upload-tile" style="max-width:200px;">
+        +
+        <input type="file" id="photoInput" accept="image/*" multiple hidden>
+      </label>
+      <div class="field" style="margin-top:20px;">
+        <label>Objet caché à retrouver</label>
+        <input type="text" id="hiddenObject" placeholder="ex : Un baby-foot">
+      </div>
+    </section>
+
+    <!-- Step 2: Mots fléchés -->
+    <section class="panel step" data-step="2" hidden>
+      <h2>2. Mots fléchés</h2>
+      <p class="hint">Ajoute jusqu'à 10 mots avec leur définition. Coche « mot clé » pour le(s) mot(s) qui doivent apparaître dans le message final.</p>
+      <div id="wordRows"></div>
+      <button class="btn ghost" type="button" id="addWordBtn">+ Ajouter un mot</button>
+      <div style="margin-top:20px;">
+        <button class="btn" type="button" id="genGridBtn">Générer la grille</button>
+      </div>
+      <div id="gridPreview" style="margin-top:20px;"></div>
+    </section>
+
+    <!-- Step 3: Rébus -->
+    <section class="panel step" data-step="3" hidden>
+      <h2>3. Rébus</h2>
+      <p class="hint">Choisis 2 à 4 emojis qui, mis bout à bout, évoquent le mot à deviner.</p>
+      <div class="rebus-sequence" id="rebusSequence">
+        <span class="placeholder">Clique des emojis ci-dessous</span>
+      </div>
+      <div class="emoji-picker" id="emojiPicker"></div>
+      <button class="btn ghost" type="button" id="clearRebusBtn">Effacer</button>
+      <div class="field" style="margin-top:16px;">
+        <label>Mot à deviner (réponse du rébus)</label>
+        <input type="text" id="rebusAnswer" placeholder="ex : Bateau">
+      </div>
+    </section>
+
+    <!-- Step 4: Jeu des différences -->
+    <section class="panel step" data-step="4" hidden>
+      <h2>4. Jeu des différences</h2>
+      <p class="hint">Ajoute une photo, puis clique dessus à l'endroit où tu veux placer « la case différente » à retrouver.</p>
+      <label class="upload-tile" style="max-width:200px; margin-bottom:16px;" id="diffUploadTile">
+        +
+        <input type="file" id="diffInput" accept="image/*" hidden>
+      </label>
+      <div id="diffEditorWrap"></div>
+    </section>
+
+    <!-- Step 5: Photo + vidéo souvenir -->
+    <section class="panel step" data-step="5" hidden>
+      <h2>5. Photo de couverture + vidéo souvenir</h2>
+      <p class="hint">La vidéo (2 à 20 minutes) sera débloquée une fois tous les jeux résolus.</p>
+      <div class="field">
+        <label>Photo de couverture</label>
+        <label class="upload-tile" style="max-width:200px;" id="coverUploadTile">
+          +
+          <input type="file" id="coverInput" accept="image/*" hidden>
+        </label>
+      </div>
+      <div class="field">
+        <label>Vidéo souvenir</label>
+        <input type="file" id="videoInput" accept="video/*">
+      </div>
+    </section>
+
+    <!-- Step 6: Couleurs + mot final -->
+    <section class="panel step" data-step="6" hidden>
+      <h2>6. Personnalisation</h2>
+      <p class="hint">Choisis les 2 couleurs principales du tableau, et définis le mot final qui déverrouille la vidéo.</p>
+      <div class="color-row">
+        <div class="color-pick">
+          <input type="color" id="colorPrimary" value="#d9527a">
+          <span>Couleur principale</span>
+        </div>
+        <div class="color-pick">
+          <input type="color" id="colorSecondary" value="#fbead9">
+          <span>Couleur secondaire</span>
+        </div>
+      </div>
+      <div class="field" style="margin-top:20px;">
+        <label>Mot final (assemble les indices des jeux précédents)</label>
+        <input type="text" id="finalWord" placeholder="ex : Vacances">
+      </div>
+    </section>
+
+    <div class="actions">
+      <button class="btn ghost" id="backBtn" type="button">← Précédent</button>
+      <button class="btn" id="nextBtn" type="button">Suivant →</button>
+    </div>
+
+    <div id="generateWrap" style="text-align:center; margin-top:30px; display:none;">
+      <button class="btn" id="generateBtn" type="button" style="font-size:1.15rem; padding:16px 34px;">✨ Générer le tableau</button>
+    </div>
+
+    <div id="shareWrap" style="margin-top:30px; display:none;">
+      <div class="share-box">
+        <h2>Ton tableau est prêt 🎉</h2>
+        <p>Partage ce lien (ou le QR code) avec la personne à qui il est destiné :</p>
+        <input type="text" id="shareLink" readonly>
+        <a class="btn" id="openViewBtn" href="#" target="_blank">Ouvrir le tableau</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script src="create.js"></script>
+</body>
+</html>
