@@ -287,32 +287,31 @@ function renderPosterInto(container, board, opts = {}) {
 
   container.innerHTML = `
     <div class="print-poster">
-      <div class="mosaic">${posterMosaicHTML(board)}</div>
-
-      <div class="plabel"><div class="pnum">1</div><div class="ptext">Objet caché :<span class="pline"></span></div></div>
-      <p class="phint">Retrouve l'objet caché parmi les photos ci-dessus, et écris sa réponse.</p>
+      <div class="poster-top">
+        <div class="mosaic">${posterMosaicHTML(board)}</div>
+        <div class="plabel"><div class="pnum">1</div><div class="ptext">Objet caché :<span class="pline"></span></div></div>
+      </div>
 
       <div class="deco-arrow a1">↷</div>
 
-      <div class="plabel"><div class="pnum">2</div><div class="ptext">Mot trouvé :<span class="pline"></span></div></div>
-      ${posterFlecheesHTML(board)}
-
-      <div class="rebus-print-row">
-        <div class="rebus-box2">${posterRebusHTML(board)}</div>
-        <div class="deco-arrow a2">↶</div>
-        <div class="plabel" style="flex:1;"><div class="pnum">3</div><div class="ptext">Mot trouvé :<span class="pline"></span></div></div>
-      </div>
-
-      <div class="plabel"><div class="pnum">4</div><div class="ptext">Case différente :<span class="pline"></span></div></div>
-      <p class="phint">Observe les deux photos : une case est différente. Entoure-la.</p>
-      <div class="diff-pair">${posterDiffHTML(board)}</div>
-
-      <div class="final-row">
-        <div>
-          <div class="plabel"><div class="pnum">✓</div><div class="ptext">Mot final :<span class="pline"></span></div></div>
-          <p class="phint">Assemble les indices trouvés ci-dessus${qrTarget ? ', puis scanne le code pour vérifier ta réponse.' : '.'}</p>
+      <div class="poster-grid2x2">
+        <div class="pcard pcard-rebus">
+          <div class="rebus-box2">${posterRebusHTML(board)}</div>
+          <div class="deco-arrow a2">↶</div>
+          <div class="plabel"><div class="pnum">3</div><div class="ptext">Mot trouvé :<span class="pline"></span></div></div>
         </div>
-        <div class="qr-block">${qrHTML}</div>
+        <div class="pcard pcard-flech">
+          <div class="plabel"><div class="pnum">2</div><div class="ptext">Mot trouvé :<span class="pline"></span></div></div>
+          <div class="flech-scroll">${posterFlecheesHTML(board)}</div>
+        </div>
+        <div class="pcard pcard-diff">
+          <div class="plabel"><div class="pnum">4</div><div class="ptext">Case différente :<span class="pline"></span></div></div>
+          <div class="diff-pair">${posterDiffHTML(board)}</div>
+        </div>
+        <div class="pcard pcard-final">
+          <div class="plabel"><div class="pnum">✓</div><div class="ptext">Mot final :<span class="pline"></span></div></div>
+          <div class="qr-block">${qrHTML}</div>
+        </div>
       </div>
     </div>
   `;

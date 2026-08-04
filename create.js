@@ -19,7 +19,10 @@ const state = {
 
 const MOSAIC_SPANS = ['span-1', 'span-2', 'span-1', 'span-2', 'span-1', 'span-1'];
 
-/* ---------- Squelette (rendu une seule fois) ---------- */
+/* ---------- Squelette (rendu une seule fois) ----------
+   Le cadre (.print-poster) garde une taille fixe : les éditeurs de mots
+   et de rébus, trop volumineux pour tenir dans leur petite carte,
+   s'ouvrent juste en dessous du cadre plutôt que de le faire grandir. */
 function renderShell() {
   document.getElementById('editablePoster').innerHTML = `
     <div class="editable-poster-wrap">
@@ -28,48 +31,51 @@ function renderShell() {
         <input type="color" id="colorSecondaryInput" value="${state.colorSecondary}" title="Couleur secondaire">
       </div>
       <div class="print-poster" id="posterRoot">
-        <div class="mosaic" id="edMosaic"></div>
-
-        <div class="plabel"><div class="pnum">1</div><div class="ptext">Objet caché :<input class="pinput" id="edHiddenObject" placeholder="ex : un baby-foot" value="${state.hiddenObject}"></div></div>
+        <div class="poster-top">
+          <div class="mosaic" id="edMosaic"></div>
+          <div class="plabel"><div class="pnum">1</div><div class="ptext">Objet caché :<input class="pinput" id="edHiddenObject" placeholder="ex : un baby-foot" value="${state.hiddenObject}"></div></div>
+        </div>
 
         <div class="deco-arrow a1">↷</div>
 
-        <div class="plabel"><div class="pnum">2</div><div class="ptext">Mot trouvé :<span class="pline"></span></div></div>
-        <button class="edit-affordance" id="wordsToggle" type="button">✏️ <span id="wordsToggleLabel">Ajouter des mots</span></button>
-        <div id="edFlechWrap"></div>
-        <div class="inline-editor" id="wordsEditor" hidden>
-          <p class="hint">Ajoute jusqu'à 10 mots avec leur définition. Coche « clé » pour le(s) mot(s) qui doivent apparaître dans le message final.</p>
-          <div id="wordRows"></div>
-          <button class="btn ghost" type="button" id="addWordBtn">+ Ajouter un mot</button>
-        </div>
-
-        <div class="rebus-print-row">
-          <div class="rebus-box2 clickable" id="edRebusBox"></div>
-          <div class="deco-arrow a2">↶</div>
-          <div class="plabel" style="flex:1;"><div class="pnum">3</div><div class="ptext">Mot trouvé :<span class="pline"></span></div></div>
-        </div>
-        <div class="inline-editor" id="rebusEditor" hidden>
-          <p class="hint">Choisis 2 à 4 emojis, puis indique le mot qu'ils évoquent (pour vérification).</p>
-          <div class="rebus-sequence" id="rebusSequence"></div>
-          <div class="emoji-picker" id="emojiPicker"></div>
-          <button class="btn ghost" type="button" id="clearRebusBtn">Effacer</button>
-          <div class="field" style="margin-top:12px;">
-            <label>Mot à deviner</label>
-            <input type="text" id="rebusAnswer" placeholder="ex : Bateau" value="${state.rebusAnswer}">
+        <div class="poster-grid2x2">
+          <div class="pcard pcard-rebus clickable" id="edRebusCard" title="Clique pour choisir le rébus">
+            <span class="pcard-hint">✏️</span>
+            <div class="rebus-box2" id="edRebusBox"></div>
+            <div class="deco-arrow a2">↶</div>
+            <div class="plabel"><div class="pnum">3</div><div class="ptext">Mot trouvé :<span class="pline"></span></div></div>
           </div>
-        </div>
-
-        <div class="plabel"><div class="pnum">4</div><div class="ptext">Case différente :<span class="pline"></span></div></div>
-        <p class="phint">Ajoute une photo, puis clique dessus pour placer la case à retrouver.</p>
-        <div class="diff-edit-frame" id="edDiffFrame"></div>
-
-        <div class="final-row">
-          <div>
+          <div class="pcard pcard-flech clickable" id="edFlechCard" title="Clique pour ajouter des mots">
+            <span class="pcard-hint">✏️</span>
+            <div class="plabel"><div class="pnum">2</div><div class="ptext">Mot trouvé :<span class="pline"></span></div></div>
+            <div class="flech-scroll" id="edFlechWrap"></div>
+          </div>
+          <div class="pcard pcard-diff">
+            <div class="plabel"><div class="pnum">4</div><div class="ptext">Case différente :<span class="pline"></span></div></div>
+            <div class="diff-card-body" id="edDiffFrame"></div>
+          </div>
+          <div class="pcard pcard-final">
             <div class="plabel"><div class="pnum">✓</div><div class="ptext">Mot final :<input class="pinput" id="edFinalWord" placeholder="ex : Vacances" value="${state.finalWord}"></div></div>
-            <p class="phint">Assemble les indices trouvés ci-dessus.</p>
+            <div class="qr-block clickable" id="edVideoBlock"></div>
           </div>
-          <div class="qr-block clickable" id="edVideoBlock"></div>
         </div>
+      </div>
+    </div>
+
+    <div class="inline-editor" id="wordsEditor" hidden>
+      <p class="hint">Ajoute jusqu'à 10 mots avec leur définition. Coche « clé » pour le(s) mot(s) qui doivent apparaître dans le message final.</p>
+      <div id="wordRows"></div>
+      <button class="btn ghost" type="button" id="addWordBtn">+ Ajouter un mot</button>
+    </div>
+
+    <div class="inline-editor" id="rebusEditor" hidden>
+      <p class="hint">Choisis 2 à 4 emojis, puis indique le mot qu'ils évoquent (pour vérification).</p>
+      <div class="rebus-sequence" id="rebusSequence"></div>
+      <div class="emoji-picker" id="emojiPicker"></div>
+      <button class="btn ghost" type="button" id="clearRebusBtn">Effacer</button>
+      <div class="field" style="margin-top:12px;">
+        <label>Mot à deviner</label>
+        <input type="text" id="rebusAnswer" placeholder="ex : Bateau" value="${state.rebusAnswer}">
       </div>
     </div>
   `;
@@ -117,8 +123,6 @@ function currentCrossword() {
 function renderFlechEditableInto() {
   state.crossword = currentCrossword();
   document.getElementById('edFlechWrap').innerHTML = posterFlecheesHTML({ crossword: state.crossword });
-  const hasWords = state.words.some(w => w.word.trim());
-  document.getElementById('wordsToggleLabel').textContent = hasWords ? 'Modifier les mots' : 'Ajouter des mots';
 }
 function renderWordRowsInto() {
   const wrap = document.getElementById('wordRows');
@@ -193,7 +197,7 @@ function renderEmojiPickerInto() {
 function renderDiffFrameInto() {
   const wrap = document.getElementById('edDiffFrame');
   if (!state.diffPhoto) {
-    wrap.innerHTML = `<label class="upload-tile" style="max-width:220px;">+<input type="file" id="diffInput" accept="image/*" hidden></label>`;
+    wrap.innerHTML = `<label class="upload-tile" style="width:65%; aspect-ratio:1; max-width:120px;">+<input type="file" id="diffInput" accept="image/*" hidden></label>`;
     document.getElementById('diffInput').addEventListener('change', async (e) => {
       const f = e.target.files[0];
       if (!f) return;
@@ -204,13 +208,14 @@ function renderDiffFrameInto() {
     return;
   }
   wrap.innerHTML = `
-    <div class="diff-editor" id="diffEditor">
+    <div class="diff-editor" id="diffEditor" style="width:75%; max-width:130px;">
       <img src="${state.diffPhoto}">
       ${state.diffPoint ? `<div class="diff-marker" style="left:${state.diffPoint.x}%; top:${state.diffPoint.y}%;"></div>` : ''}
+      <button class="diff-reset" type="button" id="diffChangeBtn" title="Changer la photo">↻</button>
     </div>
-    <button class="btn ghost small" type="button" id="diffChangeBtn" style="margin-top:8px;">Changer la photo</button>
   `;
   document.getElementById('diffEditor').addEventListener('click', (e) => {
+    if (e.target.closest('#diffChangeBtn')) return;
     const rect = e.currentTarget.getBoundingClientRect();
     state.diffPoint = {
       x: ((e.clientX - rect.left) / rect.width) * 100,
@@ -229,8 +234,8 @@ function renderDiffFrameInto() {
 function renderVideoBlockInto() {
   const el = document.getElementById('edVideoBlock');
   const content = state.video
-    ? `<div style="font-size:1.8rem;">🎬</div><p style="max-width:120px; margin:0 auto; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:700;">${state.video.name}</p><p style="font-size:.72rem; opacity:.65; margin:2px 0 0;">clique pour changer</p>`
-    : `<div style="font-size:1.8rem;">+</div><p style="margin:2px 0 0;">Vidéo surprise</p>`;
+    ? `<div style="font-size:1.3rem;">🎬</div><p style="max-width:90px; margin:2px auto 0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:700; font-size:.62rem;">${state.video.name}</p>`
+    : `<div style="font-size:1.3rem;">+</div><p style="margin:2px 0 0; font-size:.7rem;">Vidéo</p>`;
   el.innerHTML = `<label style="cursor:pointer; display:block;">${content}<input type="file" id="videoInputEd" accept="video/*" hidden></label>`;
   document.getElementById('videoInputEd').addEventListener('change', async (e) => {
     const f = e.target.files[0];
@@ -249,13 +254,15 @@ function attachStaticListeners() {
   document.getElementById('colorPrimaryInput').addEventListener('input', (e) => { state.colorPrimary = e.target.value; applyPosterColors(); });
   document.getElementById('colorSecondaryInput').addEventListener('input', (e) => { state.colorSecondary = e.target.value; applyPosterColors(); });
 
-  document.getElementById('wordsToggle').addEventListener('click', () => {
+  document.getElementById('edFlechCard').addEventListener('click', () => {
     const editor = document.getElementById('wordsEditor');
     editor.hidden = !editor.hidden;
+    if (!editor.hidden) editor.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   });
-  document.getElementById('edRebusBox').addEventListener('click', () => {
+  document.getElementById('edRebusCard').addEventListener('click', () => {
     const editor = document.getElementById('rebusEditor');
     editor.hidden = !editor.hidden;
+    if (!editor.hidden) editor.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   });
 
   document.getElementById('addWordBtn').addEventListener('click', () => {
