@@ -750,7 +750,17 @@ footer.site-footer {
 /* ================= AFFICHE IMPRIMABLE ================= */
 .phint { opacity: .65; font-size: .9rem; margin: 4px 0 14px; }
 
-.print-poster { padding-top: 10px; }
+.print-poster {
+  padding-top: 10px;
+  padding: 26px;
+  border: 16px solid var(--primary-dark);
+  border-radius: 14px;
+  background: var(--secondary);
+  box-shadow: 0 16px 38px rgba(0,0,0,.24), inset 0 0 0 10px var(--paper);
+}
+@media (max-width: 560px) {
+  .print-poster { border-width: 10px; padding: 16px; box-shadow: 0 10px 24px rgba(0,0,0,.2), inset 0 0 0 6px var(--paper); }
+}
 
 .mosaic {
   display: grid;
