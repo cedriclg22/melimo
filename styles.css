@@ -128,55 +128,105 @@ a.step-dot:hover { transform: scale(1.08); border-color: var(--primary); }
   box-shadow: 0 4px 10px rgba(0,0,0,.04);
 }
 
-/* --- Layout créateur avec aperçu en direct --- */
-.create-shell {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 20px 20px 120px;
+/* --- Tableau éditable en direct (créateur) --- */
+.editable-poster-wrap { position: relative; max-width: 900px; margin: 0 auto; }
+
+.color-toolbar {
+  position: absolute;
+  top: 8px;
+  right: 8px;
   display: flex;
-  gap: 28px;
-  align-items: flex-start;
-}
-.create-form-col { flex: 1; min-width: 0; max-width: 680px; }
-.preview-col { width: 520px; flex-shrink: 0; }
-@media (min-width: 1100px) {
-  .preview-col { position: sticky; top: 86px; }
-}
-@media (max-width: 1099px) {
-  .create-shell { flex-direction: column; }
-  .create-form-col { max-width: 100%; width: 100%; }
-  .preview-col { width: 100%; }
-}
-.preview-details {
+  gap: 8px;
   background: var(--paper);
-  border-radius: var(--radius);
+  border-radius: 999px;
+  padding: 7px 9px;
   box-shadow: var(--shadow);
-  padding: 16px 18px;
+  z-index: 5;
 }
-.preview-details summary {
+.color-toolbar input[type=color] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 26px; height: 26px;
+  border: 2px solid #fff;
+  border-radius: 50%;
   cursor: pointer;
-  font-weight: 800;
+  background: none;
+  padding: 0;
+  box-shadow: 0 0 0 1px #e6c9d4;
+}
+.color-toolbar input[type=color]::-webkit-color-swatch-wrapper { padding: 0; border-radius: 50%; }
+.color-toolbar input[type=color]::-webkit-color-swatch { border: none; border-radius: 50%; }
+
+/* pill inline inputs replacing the printed dashed line */
+.pinput {
+  flex: 1;
+  min-width: 80px;
+  border: none;
+  border-bottom: 2px dashed var(--primary-dark);
+  background: transparent;
+  font-family: inherit;
+  font-weight: 700;
   color: var(--primary-dark);
-  font-size: 1.05rem;
-  list-style: none;
+  font-size: 1rem;
+  padding: 2px 4px;
 }
-.preview-details summary::-webkit-details-marker { display: none; }
-.preview-details summary::before { content: '▸ '; }
-.preview-details[open] summary::before { content: '▾ '; }
-.print-poster-preview {
-  margin-top: 14px;
-  zoom: 0.54;
-  max-height: 78vh;
-  overflow: auto;
-  border-radius: 12px;
+.pinput:focus { outline: none; border-bottom-style: solid; }
+.pinput::placeholder { color: #d9a9bb; font-weight: 500; }
+
+/* editable mosaic tiles */
+.mosaic .tile-slot { position: relative; }
+.mosaic .tile-slot img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; display: block; cursor: pointer; }
+.mosaic .tile-slot .rm {
+  position: absolute; top: 4px; right: 4px;
+  background: rgba(0,0,0,.55); color: #fff; border: none;
+  width: 22px; height: 22px; border-radius: 50%; cursor: pointer; font-size: .75rem;
 }
-@media (min-width: 1100px) {
-  .print-poster-preview { max-height: calc(100vh - 190px); }
+.mosaic .tile-add {
+  border: 2px dashed #d9a9bb;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.8rem;
+  color: var(--primary-dark);
+  cursor: pointer;
+  background: #fff6f9;
 }
-@media (max-width: 560px) {
-  .print-poster-preview { zoom: 0.4; }
+
+/* click-to-edit affordance buttons */
+.edit-affordance {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  border: 2px dashed var(--primary);
+  color: var(--primary-dark);
+  border-radius: 999px;
+  padding: 7px 16px;
+  font-size: .85rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin: 4px 0 16px;
+  font-family: inherit;
 }
-.print-poster-preview .print-poster { padding-top: 0; }
+.edit-affordance:hover { background: #fdf0f4; }
+
+.inline-editor {
+  background: var(--paper);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 16px;
+  margin: 0 0 20px;
+}
+
+.rebus-box2.clickable, .diff-edit-frame, .qr-block.clickable {
+  cursor: pointer;
+  transition: box-shadow .15s ease;
+}
+.rebus-box2.clickable:hover, .qr-block.clickable:hover { box-shadow: 0 0 0 3px var(--primary); }
+.diff-edit-frame {
+  max-width: 320px;
+}
+.diff-edit-frame .upload-tile { cursor: pointer; }
+.qr-block .upload-tile { width: 100px; height: 100px; margin: 0 auto 8px; }
 
 .floating-generate {
   position: fixed;

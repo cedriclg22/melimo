@@ -1,100 +1,126 @@
-/* Melimo — logique de l'assistant de création (côté famille) */
+/* Melimo — créateur : le tableau lui-même est l'unique interface d'édition.
+   Chaque zone se modifie au clic ; seule la zone concernée est re-rendue
+   pour ne jamais faire perdre le focus d'un champ en cours de saisie. */
 
 const state = {
-  photos: [], // data URLs
+  photos: [],
   hiddenObject: '',
-  words: [ // {word, clue, key}
-    { word: '', clue: '', key: false }
-  ],
+  words: [{ word: '', clue: '', key: false }],
+  crossword: null,
   rebusEmojis: [],
   rebusAnswer: '',
   diffPhoto: null,
-  diffPoint: null, // {x%, y%}
-  coverPhoto: null,
+  diffPoint: null,
   video: null, // {name, dataUrl}
   colorPrimary: '#d9527a',
   colorSecondary: '#fbead9',
   finalWord: ''
 };
 
-const TOTAL_STEPS = 6;
+const MOSAIC_SPANS = ['span-1', 'span-2', 'span-1', 'span-2', 'span-1', 'span-1'];
 
-/* Toutes les étapes sont visibles en même temps : le stepper n'est qu'une
-   navigation rapide (clic = scroll vers la section), avec un repère visuel
-   de la section actuellement à l'écran (scrollspy). */
-function renderStepper() {
-  const el = document.getElementById('stepper');
-  el.innerHTML = '';
-  for (let i = 1; i <= TOTAL_STEPS; i++) {
-    const dot = document.createElement('a');
-    dot.className = 'step-dot';
-    dot.href = `#step${i}`;
-    dot.textContent = i;
-    el.appendChild(dot);
+/* ---------- Squelette (rendu une seule fois) ---------- */
+function renderShell() {
+  document.getElementById('editablePoster').innerHTML = `
+    <div class="editable-poster-wrap">
+      <div class="color-toolbar">
+        <input type="color" id="colorPrimaryInput" value="${state.colorPrimary}" title="Couleur principale">
+        <input type="color" id="colorSecondaryInput" value="${state.colorSecondary}" title="Couleur secondaire">
+      </div>
+      <div class="print-poster" id="posterRoot">
+        <div class="mosaic" id="edMosaic"></div>
+
+        <div class="plabel"><div class="pnum">1</div><div class="ptext">Objet caché :<input class="pinput" id="edHiddenObject" placeholder="ex : un baby-foot" value="${state.hiddenObject}"></div></div>
+
+        <div class="deco-arrow a1">↷</div>
+
+        <div class="plabel"><div class="pnum">2</div><div class="ptext">Mot trouvé :<span class="pline"></span></div></div>
+        <button class="edit-affordance" id="wordsToggle" type="button">✏️ <span id="wordsToggleLabel">Ajouter des mots</span></button>
+        <div id="edFlechWrap"></div>
+        <div class="inline-editor" id="wordsEditor" hidden>
+          <p class="hint">Ajoute jusqu'à 10 mots avec leur définition. Coche « clé » pour le(s) mot(s) qui doivent apparaître dans le message final.</p>
+          <div id="wordRows"></div>
+          <button class="btn ghost" type="button" id="addWordBtn">+ Ajouter un mot</button>
+        </div>
+
+        <div class="rebus-print-row">
+          <div class="rebus-box2 clickable" id="edRebusBox"></div>
+          <div class="deco-arrow a2">↶</div>
+          <div class="plabel" style="flex:1;"><div class="pnum">3</div><div class="ptext">Mot trouvé :<span class="pline"></span></div></div>
+        </div>
+        <div class="inline-editor" id="rebusEditor" hidden>
+          <p class="hint">Choisis 2 à 4 emojis, puis indique le mot qu'ils évoquent (pour vérification).</p>
+          <div class="rebus-sequence" id="rebusSequence"></div>
+          <div class="emoji-picker" id="emojiPicker"></div>
+          <button class="btn ghost" type="button" id="clearRebusBtn">Effacer</button>
+          <div class="field" style="margin-top:12px;">
+            <label>Mot à deviner</label>
+            <input type="text" id="rebusAnswer" placeholder="ex : Bateau" value="${state.rebusAnswer}">
+          </div>
+        </div>
+
+        <div class="plabel"><div class="pnum">4</div><div class="ptext">Case différente :<span class="pline"></span></div></div>
+        <p class="phint">Ajoute une photo, puis clique dessus pour placer la case à retrouver.</p>
+        <div class="diff-edit-frame" id="edDiffFrame"></div>
+
+        <div class="final-row">
+          <div>
+            <div class="plabel"><div class="pnum">✓</div><div class="ptext">Mot final :<input class="pinput" id="edFinalWord" placeholder="ex : Vacances" value="${state.finalWord}"></div></div>
+            <p class="phint">Assemble les indices trouvés ci-dessus.</p>
+          </div>
+          <div class="qr-block clickable" id="edVideoBlock"></div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function applyPosterColors() {
+  const root = document.getElementById('posterRoot');
+  root.style.setProperty('--primary', state.colorPrimary);
+  root.style.setProperty('--secondary', state.colorSecondary);
+  root.style.setProperty('--primary-dark', shade(state.colorPrimary, -18));
+}
+
+/* ---------- Pêle-mêle ---------- */
+function renderMosaicInto() {
+  const el = document.getElementById('edMosaic');
+  let html = state.photos.map((src, i) =>
+    `<div class="tile-slot ${MOSAIC_SPANS[i] || ''}"><img src="${src}"><button class="rm" data-i="${i}" type="button">✕</button></div>`
+  ).join('');
+  if (state.photos.length < 6) {
+    html += `<label class="tile-add ${MOSAIC_SPANS[state.photos.length] || ''}">+<input type="file" id="mosaicInput" accept="image/*" multiple hidden></label>`;
   }
-}
-
-function initScrollspy() {
-  const dots = Array.from(document.querySelectorAll('.step-dot'));
-  const sections = Array.from(document.querySelectorAll('.step'));
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      const i = sections.indexOf(entry.target);
-      if (i === -1) return;
-      dots[i].classList.toggle('active', entry.isIntersecting);
-    });
-  }, { rootMargin: '-40% 0px -50% 0px' });
-  sections.forEach(s => observer.observe(s));
-}
-
-/* ---------- Aperçu en direct de l'affiche ---------- */
-function updatePreview() {
-  const panel = document.getElementById('livePoster');
-  if (!panel) return;
-  const preview = { ...state };
-  if (!preview.crossword) {
-    const valid = state.words.filter(w => w.word.trim() && w.clue.trim());
-    if (valid.length >= 2) preview.crossword = generateCrossword(valid);
-  }
-  panel.style.setProperty('--primary', state.colorPrimary);
-  panel.style.setProperty('--secondary', state.colorSecondary);
-  panel.style.setProperty('--primary-dark', shade(state.colorPrimary, -18));
-  renderPosterInto(panel, preview);
-}
-
-/* ---------- Step 1: photos ---------- */
-function renderPhotoGrid() {
-  const grid = document.getElementById('photoGrid');
-  grid.innerHTML = '';
-  state.photos.forEach((src, i) => {
-    const tile = document.createElement('div');
-    tile.className = 'photo-tile';
-    tile.innerHTML = `<img src="${src}"><button data-i="${i}">✕</button>`;
-    grid.appendChild(tile);
-  });
-  grid.querySelectorAll('button').forEach(btn => {
+  el.innerHTML = html;
+  el.querySelectorAll('.rm').forEach(btn => {
     btn.addEventListener('click', () => {
       state.photos.splice(Number(btn.dataset.i), 1);
-      renderPhotoGrid();
+      renderMosaicInto();
     });
   });
-  updatePreview();
-}
-document.getElementById('photoInput').addEventListener('change', async (e) => {
-  const files = Array.from(e.target.files).slice(0, 10 - state.photos.length);
-  for (const f of files) {
-    state.photos.push(await fileToDataUrl(f));
+  const input = document.getElementById('mosaicInput');
+  if (input) {
+    input.addEventListener('change', async (e) => {
+      const files = Array.from(e.target.files).slice(0, 6 - state.photos.length);
+      for (const f of files) state.photos.push(await fileToDataUrl(f));
+      renderMosaicInto();
+      e.target.value = '';
+    });
   }
-  renderPhotoGrid();
-  e.target.value = '';
-});
-document.getElementById('hiddenObject').addEventListener('input', (e) => {
-  state.hiddenObject = e.target.value;
-  updatePreview();
-});
+}
 
-/* ---------- Step 2: mots fléchés ---------- */
-function renderWordRows() {
+/* ---------- Mots fléchés ---------- */
+function currentCrossword() {
+  const valid = state.words.filter(w => w.word.trim() && w.clue.trim());
+  return valid.length >= 2 ? generateCrossword(valid) : null;
+}
+function renderFlechEditableInto() {
+  state.crossword = currentCrossword();
+  document.getElementById('edFlechWrap').innerHTML = posterFlecheesHTML({ crossword: state.crossword });
+  const hasWords = state.words.some(w => w.word.trim());
+  document.getElementById('wordsToggleLabel').textContent = hasWords ? 'Modifier les mots' : 'Ajouter des mots';
+}
+function renderWordRowsInto() {
   const wrap = document.getElementById('wordRows');
   wrap.innerHTML = '';
   state.words.forEach((w, i) => {
@@ -108,144 +134,145 @@ function renderWordRows() {
     `;
     wrap.appendChild(row);
   });
-  wrap.querySelectorAll('input').forEach(inp => {
+  wrap.querySelectorAll('input[type=text]').forEach(inp => {
     inp.addEventListener('input', (e) => {
       const i = Number(e.target.dataset.i);
-      const field = e.target.dataset.field;
-      state.words[i][field] = field === 'key' ? e.target.checked : e.target.value;
-      state.crossword = null;
-      updatePreview();
+      state.words[i][e.target.dataset.field] = e.target.value;
+    });
+    inp.addEventListener('blur', () => renderFlechEditableInto());
+  });
+  wrap.querySelectorAll('input[type=checkbox]').forEach(cb => {
+    cb.addEventListener('change', (e) => {
+      state.words[Number(e.target.dataset.i)].key = e.target.checked;
+      renderFlechEditableInto();
     });
   });
   wrap.querySelectorAll('[data-del]').forEach(btn => {
     btn.addEventListener('click', () => {
       state.words.splice(Number(btn.dataset.del), 1);
-      state.crossword = null;
-      renderWordRows();
+      renderWordRowsInto();
+      renderFlechEditableInto();
     });
   });
-  updatePreview();
-}
-document.getElementById('addWordBtn').addEventListener('click', () => {
-  if (state.words.length >= 10) return;
-  state.words.push({ word: '', clue: '', key: false });
-  renderWordRows();
-});
-document.getElementById('genGridBtn').addEventListener('click', () => {
-  const valid = state.words.filter(w => w.word.trim() && w.clue.trim());
-  if (valid.length < 2) {
-    document.getElementById('gridPreview').innerHTML = '<p class="hint">Ajoute au moins 2 mots avec leur définition.</p>';
-    return;
-  }
-  const cw = generateCrossword(valid);
-  state.crossword = cw;
-  document.getElementById('gridPreview').innerHTML = renderCrosswordPreview(cw);
-  updatePreview();
-});
-function renderCrosswordPreview(cw) {
-  if (!cw.placed.length) return '';
-  let html = `<div class="xword" style="grid-template-columns:repeat(${cw.width},22px); grid-template-rows:repeat(${cw.height},22px);">`;
-  const cells = {};
-  cw.placed.forEach(p => {
-    const dx = p.dir === 'H' ? 1 : 0, dy = p.dir === 'V' ? 1 : 0;
-    for (let i = 0; i < p.word.length; i++) {
-      cells[`${p.x + dx * i},${p.y + dy * i}`] = p.word[i];
-    }
-  });
-  for (let y = 0; y < cw.height; y++) {
-    for (let x = 0; x < cw.width; x++) {
-      const l = cells[`${x},${y}`];
-      html += `<div style="width:22px;height:22px;background:${l ? '#fff' : 'transparent'};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#d9527a;">${l || ''}</div>`;
-    }
-  }
-  html += `</div><p class="hint">${cw.placed.length} mots placés sur une grille ${cw.width}×${cw.height}.</p>`;
-  return html;
 }
 
-/* ---------- Step 3: rébus ---------- */
-function renderEmojiPicker() {
+/* ---------- Rébus ---------- */
+function renderRebusBoxInto() {
+  const el = document.getElementById('edRebusBox');
+  el.innerHTML = state.rebusEmojis.length
+    ? posterRebusHTML(state)
+    : '<span style="font-size:1.6rem; opacity:.85;">+</span>';
+}
+function renderRebusEditorSequence() {
+  const el = document.getElementById('rebusSequence');
+  el.innerHTML = state.rebusEmojis.length
+    ? state.rebusEmojis.map((e, i) => `<span class="chip" data-i="${i}" title="cliquer pour retirer">${e}</span>`).join('')
+    : '<span class="placeholder">Clique des emojis ci-dessous</span>';
+  el.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      state.rebusEmojis.splice(Number(chip.dataset.i), 1);
+      renderRebusEditorSequence();
+      renderRebusBoxInto();
+    });
+  });
+}
+function renderEmojiPickerInto() {
   const el = document.getElementById('emojiPicker');
   el.innerHTML = EMOJI_LIBRARY.map(e => `<button type="button" data-emoji="${e}">${e}</button>`).join('');
   el.querySelectorAll('button').forEach(btn => {
     btn.addEventListener('click', () => {
       if (state.rebusEmojis.length >= 4) return;
       state.rebusEmojis.push(btn.dataset.emoji);
-      renderRebusSequence();
+      renderRebusEditorSequence();
+      renderRebusBoxInto();
     });
   });
 }
-function renderRebusSequence() {
-  const el = document.getElementById('rebusSequence');
-  if (!state.rebusEmojis.length) {
-    el.innerHTML = '<span class="placeholder">Clique des emojis ci-dessous</span>';
+
+/* ---------- Case différente ---------- */
+function renderDiffFrameInto() {
+  const wrap = document.getElementById('edDiffFrame');
+  if (!state.diffPhoto) {
+    wrap.innerHTML = `<label class="upload-tile" style="max-width:220px;">+<input type="file" id="diffInput" accept="image/*" hidden></label>`;
+    document.getElementById('diffInput').addEventListener('change', async (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      state.diffPhoto = await fileToDataUrl(f);
+      state.diffPoint = null;
+      renderDiffFrameInto();
+    });
     return;
   }
-  el.innerHTML = state.rebusEmojis.map((e, i) => `<span class="chip" data-i="${i}" title="cliquer pour retirer">${e}</span>`).join('');
-  el.querySelectorAll('.chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      state.rebusEmojis.splice(Number(chip.dataset.i), 1);
-      renderRebusSequence();
-    });
+  wrap.innerHTML = `
+    <div class="diff-editor" id="diffEditor">
+      <img src="${state.diffPhoto}">
+      ${state.diffPoint ? `<div class="diff-marker" style="left:${state.diffPoint.x}%; top:${state.diffPoint.y}%;"></div>` : ''}
+    </div>
+    <button class="btn ghost small" type="button" id="diffChangeBtn" style="margin-top:8px;">Changer la photo</button>
+  `;
+  document.getElementById('diffEditor').addEventListener('click', (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    state.diffPoint = {
+      x: ((e.clientX - rect.left) / rect.width) * 100,
+      y: ((e.clientY - rect.top) / rect.height) * 100
+    };
+    renderDiffFrameInto();
   });
-  updatePreview();
-}
-document.getElementById('clearRebusBtn').addEventListener('click', () => {
-  state.rebusEmojis = [];
-  renderRebusSequence();
-});
-document.getElementById('rebusAnswer').addEventListener('input', (e) => {
-  state.rebusAnswer = e.target.value;
-  updatePreview();
-});
-
-/* ---------- Step 4: jeu des différences ---------- */
-document.getElementById('diffInput').addEventListener('change', async (e) => {
-  const f = e.target.files[0];
-  if (!f) return;
-  state.diffPhoto = await fileToDataUrl(f);
-  state.diffPoint = null;
-  renderDiffEditor();
-  e.target.value = '';
-});
-function renderDiffEditor() {
-  const wrap = document.getElementById('diffEditorWrap');
-  if (!state.diffPhoto) { wrap.innerHTML = ''; return; }
-  wrap.innerHTML = `<div class="diff-editor" id="diffEditor"><img src="${state.diffPhoto}">${state.diffPoint ? `<div class="diff-marker" style="left:${state.diffPoint.x}%; top:${state.diffPoint.y}%;"></div>` : ''}</div><p class="hint">Clique sur la photo pour placer la case différente.</p>`;
-  const editor = document.getElementById('diffEditor');
-  editor.addEventListener('click', (e) => {
-    const rect = editor.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    state.diffPoint = { x, y };
-    renderDiffEditor();
+  document.getElementById('diffChangeBtn').addEventListener('click', () => {
+    state.diffPhoto = null;
+    state.diffPoint = null;
+    renderDiffFrameInto();
   });
-  updatePreview();
 }
 
-/* ---------- Step 5: cover + vidéo ---------- */
-document.getElementById('coverInput').addEventListener('change', async (e) => {
-  const f = e.target.files[0];
-  if (!f) return;
-  state.coverPhoto = await fileToDataUrl(f);
-  document.getElementById('coverUploadTile').innerHTML = `<img src="${state.coverPhoto}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;"><input type="file" id="coverInput2" accept="image/*" hidden>`;
-});
-document.getElementById('videoInput').addEventListener('change', async (e) => {
-  const f = e.target.files[0];
-  if (!f) return;
-  state.video = { name: f.name, dataUrl: await fileToDataUrl(f) };
-});
+/* ---------- Vidéo surprise ---------- */
+function renderVideoBlockInto() {
+  const el = document.getElementById('edVideoBlock');
+  const content = state.video
+    ? `<div style="font-size:1.8rem;">🎬</div><p style="max-width:120px; margin:0 auto; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:700;">${state.video.name}</p><p style="font-size:.72rem; opacity:.65; margin:2px 0 0;">clique pour changer</p>`
+    : `<div style="font-size:1.8rem;">+</div><p style="margin:2px 0 0;">Vidéo surprise</p>`;
+  el.innerHTML = `<label style="cursor:pointer; display:block;">${content}<input type="file" id="videoInputEd" accept="video/*" hidden></label>`;
+  document.getElementById('videoInputEd').addEventListener('change', async (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    state.video = { name: f.name, dataUrl: await fileToDataUrl(f) };
+    renderVideoBlockInto();
+  });
+}
 
-/* ---------- Step 6: couleurs + mot final ---------- */
-document.getElementById('colorPrimary').addEventListener('input', (e) => { state.colorPrimary = e.target.value; updatePreview(); });
-document.getElementById('colorSecondary').addEventListener('input', (e) => { state.colorSecondary = e.target.value; updatePreview(); });
-document.getElementById('finalWord').addEventListener('input', (e) => { state.finalWord = e.target.value; updatePreview(); });
+/* ---------- Listeners statiques (attachés une fois) ---------- */
+function attachStaticListeners() {
+  document.getElementById('edHiddenObject').addEventListener('input', (e) => state.hiddenObject = e.target.value);
+  document.getElementById('edFinalWord').addEventListener('input', (e) => state.finalWord = e.target.value);
+  document.getElementById('rebusAnswer').addEventListener('input', (e) => state.rebusAnswer = e.target.value);
+
+  document.getElementById('colorPrimaryInput').addEventListener('input', (e) => { state.colorPrimary = e.target.value; applyPosterColors(); });
+  document.getElementById('colorSecondaryInput').addEventListener('input', (e) => { state.colorSecondary = e.target.value; applyPosterColors(); });
+
+  document.getElementById('wordsToggle').addEventListener('click', () => {
+    const editor = document.getElementById('wordsEditor');
+    editor.hidden = !editor.hidden;
+  });
+  document.getElementById('edRebusBox').addEventListener('click', () => {
+    const editor = document.getElementById('rebusEditor');
+    editor.hidden = !editor.hidden;
+  });
+
+  document.getElementById('addWordBtn').addEventListener('click', () => {
+    if (state.words.length >= 10) return;
+    state.words.push({ word: '', clue: '', key: false });
+    renderWordRowsInto();
+  });
+  document.getElementById('clearRebusBtn').addEventListener('click', () => {
+    state.rebusEmojis = [];
+    renderRebusEditorSequence();
+    renderRebusBoxInto();
+  });
+}
 
 /* ---------- Générer le tableau ---------- */
 document.getElementById('generateBtn').addEventListener('click', () => {
-  if (!state.crossword) {
-    const valid = state.words.filter(w => w.word.trim() && w.clue.trim());
-    if (valid.length >= 2) state.crossword = generateCrossword(valid);
-  }
+  if (!state.crossword) state.crossword = currentCrossword();
   const id = Store.newId();
   Store.save(id, state);
   const url = new URL('view.html', window.location.href);
@@ -262,15 +289,19 @@ document.getElementById('generateBtn').addEventListener('click', () => {
 /* ---------- Démo pré-remplie ---------- */
 document.getElementById('demoFillBtn').addEventListener('click', () => {
   fillDemoData();
-  renderPhotoGrid();
-  document.getElementById('hiddenObject').value = state.hiddenObject;
-  renderWordRows();
-  renderRebusSequence();
+  document.getElementById('edHiddenObject').value = state.hiddenObject;
+  document.getElementById('edFinalWord').value = state.finalWord;
   document.getElementById('rebusAnswer').value = state.rebusAnswer;
-  renderDiffEditor();
-  document.getElementById('colorPrimary').value = state.colorPrimary;
-  document.getElementById('colorSecondary').value = state.colorSecondary;
-  document.getElementById('finalWord').value = state.finalWord;
+  document.getElementById('colorPrimaryInput').value = state.colorPrimary;
+  document.getElementById('colorSecondaryInput').value = state.colorSecondary;
+  applyPosterColors();
+  renderMosaicInto();
+  renderWordRowsInto();
+  renderFlechEditableInto();
+  renderRebusEditorSequence();
+  renderRebusBoxInto();
+  renderDiffFrameInto();
+  renderVideoBlockInto();
 });
 
 function fillDemoData() {
@@ -286,23 +317,26 @@ function fillDemoData() {
     { word: 'PLAGE', clue: 'On y fait des châteaux de sable', key: true },
     { word: 'FAMILLE', clue: "Ceux qu'on aime", key: false },
     { word: 'ETE', clue: 'Saison des vacances', key: false },
-    { word: 'FORET', clue: 'Pleine d\'arbres', key: false }
+    { word: 'FORET', clue: "Pleine d'arbres", key: false }
   ];
-  state.crossword = generateCrossword(state.words);
   state.rebusEmojis = ['⛵', '🍞'];
   state.rebusAnswer = 'Bateau';
   state.diffPhoto = svgPlaceholder('#dcead0', '🌳');
   state.diffPoint = { x: 62, y: 38 };
-  state.coverPhoto = svgPlaceholder('#f6e2b8', '🎬');
   state.colorPrimary = '#d9527a';
   state.colorSecondary = '#fbead9';
   state.finalWord = 'Vacances';
 }
 
 /* init */
-renderStepper();
-initScrollspy();
-renderPhotoGrid();
-renderWordRows();
-renderEmojiPicker();
-renderRebusSequence();
+renderShell();
+attachStaticListeners();
+applyPosterColors();
+renderMosaicInto();
+renderWordRowsInto();
+renderFlechEditableInto();
+renderEmojiPickerInto();
+renderRebusEditorSequence();
+renderRebusBoxInto();
+renderDiffFrameInto();
+renderVideoBlockInto();
