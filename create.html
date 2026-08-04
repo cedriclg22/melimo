@@ -6,7 +6,7 @@
 <title>Créer un tableau — Melimo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=2">
 </head>
 <body>
   <div class="topbar">
@@ -27,6 +27,11 @@
         <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:10px;">
           <a class="btn" id="openViewBtn" href="#" target="_blank">Ouvrir le tableau</a>
           <a class="btn ghost" id="openPosterBtn" href="#" target="_blank">🖨️ Voir l'affiche à imprimer</a>
+          <a class="btn ghost" id="openMontageBtn2" href="#" target="_blank" style="display:none;">🎬 Voir le montage</a>
+        </div>
+        <div id="montageQrWrap" style="margin-top:16px; display:none;">
+          <p class="hint" style="margin-bottom:8px;">Ou scanne pour voir directement la vidéo/montage :</p>
+          <img id="montageQrImg" width="140" height="140" style="border-radius:10px; box-shadow: var(--shadow);" alt="QR code vers le montage">
         </div>
       </div>
     </div>
@@ -36,7 +41,7 @@
     <button class="btn" id="generateBtn" type="button">✨ Générer le tableau</button>
   </div>
 
-  <script src="app.js"></script>
-  <script src="create.js"></script>
+  <script src="app.js?v=2"></script>
+  <script src="create.js?v=2"></script>
 </body>
 </html>

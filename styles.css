@@ -174,8 +174,16 @@ a.step-dot:hover { transform: scale(1.08); border-color: var(--primary); }
 .pinput::placeholder { color: #d9a9bb; font-weight: 500; }
 
 /* editable mosaic tiles */
-.mosaic .tile-slot { position: relative; }
+.mosaic .tile-slot { position: relative; min-height: 0; min-width: 0; }
 .mosaic .tile-slot img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; display: block; cursor: pointer; }
+.hobj-sticker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 1.3rem;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,.35));
+  pointer-events: none;
+  z-index: 2;
+}
 .mosaic .tile-slot .rm {
   position: absolute; top: 4px; right: 4px;
   background: rgba(0,0,0,.55); color: #fff; border: none;
@@ -189,6 +197,8 @@ a.step-dot:hover { transform: scale(1.08); border-color: var(--primary); }
   color: var(--primary-dark);
   cursor: pointer;
   background: #fff6f9;
+  min-height: 0;
+  min-width: 0;
 }
 
 .inline-editor {
@@ -405,6 +415,90 @@ a.step-dot:hover { transform: scale(1.08); border-color: var(--primary); }
 .color-pick { display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .color-pick input[type=color] { width: 60px; height: 60px; border: none; border-radius: 50%; cursor: pointer; background: none; }
 
+/* --- Hidden object placer --- */
+.hobj-photo-picker {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.hobj-photo-picker .hobj-thumb {
+  width: 56px; height: 56px;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 3px solid transparent;
+  opacity: .7;
+}
+.hobj-photo-picker .hobj-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.hobj-photo-picker .hobj-thumb.active { border-color: var(--primary); opacity: 1; }
+.hobj-placer { display: flex; justify-content: center; margin-bottom: 14px; }
+.hobj-placer .diff-editor { width: 70%; max-width: 240px; cursor: crosshair; }
+.hobj-marker-edit {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 1.8rem;
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,.4));
+  pointer-events: none;
+}
+
+/* --- Rebus suggestion --- */
+.rebus-suggest-row { display: flex; gap: 8px; margin-bottom: 14px; }
+.rebus-suggest-row input {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 2px solid #eeddd0;
+  font-family: inherit;
+  font-size: .95rem;
+}
+.rebus-suggest-row input:focus { outline: none; border-color: var(--primary); }
+
+/* --- Word suggestions row --- */
+.words-editor-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* --- Montage builder / player --- */
+.montage-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 10px;
+  background: #fff6f9;
+  margin-bottom: 6px;
+}
+.montage-thumb {
+  width: 44px; height: 44px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #e9cdd8;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+.montage-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.montage-meta { flex: 1; display: flex; flex-direction: column; gap: 2px; font-size: .85rem; min-width: 0; }
+.montage-meta label { display: flex; align-items: center; gap: 4px; font-size: .78rem; opacity: .75; }
+.montage-meta input[type=number] { width: 54px; padding: 2px 4px; border-radius: 6px; border: 1.5px solid #eeddd0; font-family: inherit; }
+.montage-actions { display: flex; gap: 4px; flex-shrink: 0; }
+.montage-actions button { width: 26px; height: 26px; border-radius: 50%; border: none; background: #f5dbe1; cursor: pointer; }
+
+.montage-stage {
+  width: 100%;
+  max-width: 420px;
+  aspect-ratio: 4 / 3;
+  margin: 0 auto;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #000;
+  display: flex; align-items: center; justify-content: center;
+}
+.montage-stage img, .montage-stage video { width: 100%; height: 100%; object-fit: contain; background: #000; }
+.montage-dots { display: flex; gap: 6px; justify-content: center; margin-top: 10px; }
+.mdot { width: 8px; height: 8px; border-radius: 50%; background: #e9cdd8; }
+.mdot.active { background: var(--primary); }
+.montage-player .montage-stage { max-width: 480px; }
+
 /* ================= VIEW / POSTER ================= */
 .poster {
   background: var(--secondary);
@@ -425,6 +519,8 @@ a.step-dot:hover { transform: scale(1.08); border-color: var(--primary); }
   display: flex; align-items: center; justify-content: center;
   font-size: 2rem;
 }
+.poster-photos .tile-slot { position: relative; width: 100%; height: 100%; }
+.poster-photos .hobj-sticker { font-size: 2rem; }
 
 .section-tag {
   display: flex;
@@ -762,7 +858,7 @@ footer.site-footer {
   overflow: hidden;
 }
 
-.mosaic-wrap { position: relative; flex: 30 1 0; min-height: 0; display: flex; }
+.mosaic-wrap { position: relative; flex: 30 1 0; min-height: 0; display: flex; overflow: hidden; border-radius: 10px; }
 .mosaic {
   flex: 1;
   display: grid;
@@ -770,6 +866,8 @@ footer.site-footer {
   grid-template-rows: repeat(2, 1fr);
   gap: 6px;
   min-height: 0;
+  min-width: 0;
+  overflow: hidden;
 }
 .mosaic img, .mosaic .ph {
   width: 100%; height: 100%;

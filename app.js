@@ -193,14 +193,25 @@ function buildDemoBoard() {
       svgPlaceholder('#f6e2b8', '🐚')
     ],
     hiddenObject: 'Un baby-foot',
+    hiddenObjectPhoto: 0,
+    hiddenObjectPoint: { x: 58, y: 65 },
+    hiddenObjectEmoji: '⚽',
     words,
     crossword: generateCrossword(words),
-    rebusEmojis: ['⛵', '🍞'],
+    rebusEmojis: suggestRebus('Bateau'),
     rebusAnswer: 'Bateau',
     diffPhoto: svgPlaceholder('#dcead0', '🌳'),
     diffPoint: { x: 62, y: 38 },
     coverPhoto: svgPlaceholder('#f6e2b8', '🎬'),
     video: null,
+    montage: {
+      items: [
+        { type: 'photo', src: svgPlaceholder('#f1ddd0', '⚽'), duration: 2.5 },
+        { type: 'photo', src: svgPlaceholder('#cfe8f0', '🏖️'), duration: 2.5 },
+        { type: 'photo', src: svgPlaceholder('#f0d9e4', '👨‍👩‍👧‍👦'), duration: 2.5 }
+      ],
+      audio: null
+    },
     colorPrimary: '#d9527a',
     colorSecondary: '#fbead9',
     finalWord: 'Vacances'
@@ -231,11 +242,19 @@ function applyBoardColors(board) {
 }
 
 /* ---------- Rendu de l'affiche (partagé entre poster.html et l'aperçu en direct de create.html) ---------- */
+function hiddenObjectStickerHTML(board, photoIndex) {
+  if (board.hiddenObjectPhoto !== photoIndex || !board.hiddenObjectPoint || !board.hiddenObjectEmoji) return '';
+  const p = board.hiddenObjectPoint;
+  return `<span class="hobj-sticker" style="left:${p.x}%; top:${p.y}%;">${board.hiddenObjectEmoji}</span>`;
+}
+
 function posterMosaicHTML(board) {
   const photos = (board.photos && board.photos.length ? board.photos : new Array(6).fill(null)).slice(0, 6);
   const spans = ['span-1', 'span-2', 'span-1', 'span-2', 'span-1', 'span-1'];
   return photos.map((src, i) =>
-    src ? `<img class="${spans[i] || ''}" src="${src}">` : `<div class="ph ${spans[i] || ''}">📷</div>`
+    src
+      ? `<div class="tile-slot ${spans[i] || ''}"><img src="${src}">${hiddenObjectStickerHTML(board, i)}</div>`
+      : `<div class="ph ${spans[i] || ''}">📷</div>`
   ).join('');
 }
 
@@ -305,7 +324,7 @@ function renderPosterInto(container, board, opts = {}) {
             <div class="answer-blank"></div>
           </div>
           <div class="pcard pcard-rebus">
-            ${ribbonLabel(3, 'Mot trouvé')}
+            ${ribbonLabel(3, 'Rébus')}
             <div class="pcard-body"><div class="rebus-box2">${posterRebusHTML(board)}</div></div>
             <div class="answer-blank"></div>
           </div>
@@ -360,3 +379,144 @@ const EMOJI_LIBRARY = [
   '🐱','🐶','🏠','⭐','🔥','💧','🍀','🎵','🧦','🦶','🐄','🐐','🌳','☀️','❄️',
   '🍷','🧊','🥁','🎯','🐢','🦋','🍯','🧀','🪁','🕰️','🚪','🔑','📚','✏️','🎨'
 ];
+
+/* ---------- Générateur de rébus ----------
+   Dictionnaire de mots/syllabes français courants associés à un emoji.
+   suggestRebus() essaie d'abord le mot entier, puis découpe le mot en
+   segments connus (les plus longs en premier) pour construire un rébus
+   phonétique ; ce qui n'est pas reconnu reste affiché en texte. */
+const REBUS_DICTIONARY = {
+  pain: '🍞', main: '✋', bain: '🛁', train: '🚂', faim: '🍽️',
+  lit: '🛏️', riz: '🍚', nid: '🪺', pie: '🐦', roi: '👑',
+  mer: '🌊', mere: '🌊', eau: '💧',
+  ver: '🐛', vert: '🐛', verre: '🐛', vers: '🐛',
+  seau: '🪣', sceau: '🪣', pot: '🍯', peau: '🧴',
+  beau: '✨', ile: '🏝️', fee: '🧚', fer: '🧲', nez: '👃',
+  dent: '🦷', coeur: '❤️', soeur: '👧', heure: '⏰',
+  fleur: '🌸', peur: '😨', oeuf: '🥚', boeuf: '🐂', neuf: '9️⃣',
+  chat: '🐱', chatte: '🐱', rat: '🐀', loup: '🐺', ourse: '🐻', ours: '🐻',
+  vache: '🐄', poule: '🐔', canard: '🦆', poisson: '🐟', lion: '🦁',
+  singe: '🐒', cheval: '🐴', ane: '🫏', abeille: '🐝', papillon: '🦋',
+  serpent: '🐍', tortue: '🐢', grenouille: '🐸', araignee: '🕷️', souris: '🐭',
+  soleil: '☀️', lune: '🌙', etoile: '⭐', pluie: '🌧️', neige: '❄️',
+  vent: '💨', nuage: '☁️', feu: '🔥', terre: '🌍',
+  arbre: '🌳', fleuriste: '🌸', feuille: '🍁',
+  maison: '🏠', porte: '🚪', cle: '🔑', livre: '📚', crayon: '✏️',
+  lait: '🥛', fromage: '🧀', gateau: '🎂', glace: '🍦', pomme: '🍎',
+  raisin: '🍇', citron: '🍋', fraise: '🍓', miel: '🍯',
+  bateau: '⛵', voiture: '🚗', velo: '🚲', avion: '✈️',
+  ballon: '🎈', cadeau: '🎁', musique: '🎵', guitare: '🎸',
+  tambour: '🥁', cloche: '🔔', valise: '🧳', chapeau: '🎩',
+  lunettes: '👓', parapluie: '☂️', cygne: '🦢',
+  un: '1️⃣', deux: '2️⃣', trois: '3️⃣', dix: '🔟', cent: '💯'
+};
+
+function normalizeFr(str) {
+  return (str || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z]/g, '');
+}
+
+function suggestRebus(word) {
+  const norm = normalizeFr(word);
+  if (!norm) return [];
+  if (REBUS_DICTIONARY[norm]) return [REBUS_DICTIONARY[norm]];
+
+  const tokens = [];
+  let pendingText = '';
+  const flush = () => { if (pendingText) { tokens.push(pendingText.toUpperCase()); pendingText = ''; } };
+
+  let i = 0;
+  while (i < norm.length) {
+    let matched = null, matchedLen = 0;
+    for (let len = Math.min(10, norm.length - i); len >= 2; len--) {
+      const chunk = norm.slice(i, i + len);
+      if (REBUS_DICTIONARY[chunk]) { matched = REBUS_DICTIONARY[chunk]; matchedLen = len; break; }
+    }
+    if (matched) {
+      flush();
+      tokens.push(matched);
+      i += matchedLen;
+    } else {
+      pendingText += norm[i];
+      i += 1;
+    }
+  }
+  flush();
+  return tokens.slice(0, 6);
+}
+
+/* ---------- Suggestions de mots pour les mots fléchés ---------- */
+const WORD_SUGGESTIONS = [
+  { word: 'FAMILLE', clue: "Ceux qu'on aime par-dessus tout" },
+  { word: 'VACANCES', clue: 'Moment de repos loin du quotidien' },
+  { word: 'SOUVENIR', clue: 'Ce qui reste gravé dans la mémoire' },
+  { word: 'SOURIRE', clue: "On le voit sur un visage heureux" },
+  { word: 'VOYAGE', clue: 'Un déplacement loin de la maison' },
+  { word: 'PLAGE', clue: 'On y fait des châteaux de sable' },
+  { word: 'MUSIQUE', clue: 'Elle se joue et se danse' },
+  { word: 'CADEAU', clue: "On le déballe avec joie" },
+  { word: 'AMITIE', clue: 'Un lien précieux entre deux personnes' },
+  { word: 'BONHEUR', clue: "Ce que l'on souhaite à tous" }
+];
+
+/* ---------- Lecteur de montage (photos + vidéo + son) ----------
+   Enchaîne les éléments d'un montage (board.montage.items) comme un
+   petit diaporama : chaque photo reste affichée le temps défini, une
+   vidéo se joue jusqu'à sa fin, et une piste audio optionnelle démarre
+   en même temps que la séquence. Utilisé par create.js (aperçu),
+   view.js (révélation finale) et montage.html (lien QR direct). */
+function renderMontagePlayer(container, montage, opts = {}) {
+  const items = (montage && montage.items) || [];
+  if (!items.length) {
+    container.innerHTML = '<p class="hint">Aucun montage disponible.</p>';
+    return;
+  }
+  container.innerHTML = `
+    <div class="montage-stage" id="mstage-${opts.uid || 'x'}"></div>
+    <div class="montage-dots" id="mdots-${opts.uid || 'x'}">${items.map((_, i) => `<span class="mdot" data-i="${i}"></span>`).join('')}</div>
+    <p style="text-align:center; margin-top:10px;"><button class="btn ghost small" type="button" id="mreplay-${opts.uid || 'x'}">↻ Rejouer</button></p>
+  `;
+  const stage = container.querySelector(`#mstage-${opts.uid || 'x'}`);
+  const dots = container.querySelectorAll(`#mdots-${opts.uid || 'x'} .mdot`);
+  let audioEl = null;
+  if (montage.audio && montage.audio.dataUrl) audioEl = new Audio(montage.audio.dataUrl);
+
+  let idx = 0;
+  let timer = null;
+
+  function stopCurrent() {
+    if (timer) { clearTimeout(timer); timer = null; }
+    const v = stage.querySelector('video');
+    if (v) { try { v.pause(); } catch (e) {} }
+  }
+  function showItem(i) {
+    stopCurrent();
+    dots.forEach((d, di) => d.classList.toggle('active', di === i));
+    const it = items[i];
+    if (it.type === 'video') {
+      stage.innerHTML = `<video src="${it.src}" playsinline></video>`;
+      const v = stage.querySelector('video');
+      v.addEventListener('ended', next);
+      v.play().catch(() => { timer = setTimeout(next, 4000); });
+    } else {
+      stage.innerHTML = `<img src="${it.src}">`;
+      timer = setTimeout(next, Math.max(800, (Number(it.duration) || 2.5) * 1000));
+    }
+  }
+  function next() {
+    idx++;
+    if (idx >= items.length) { idx = items.length - 1; return; }
+    showItem(idx);
+  }
+  function start() {
+    idx = 0;
+    if (audioEl) { audioEl.currentTime = 0; audioEl.play().catch(() => {}); }
+    showItem(0);
+  }
+  const replayBtn = container.querySelector(`#mreplay-${opts.uid || 'x'}`);
+  if (replayBtn) replayBtn.addEventListener('click', start);
+  start();
+}

@@ -57,7 +57,11 @@ function render(board) {
 function renderPhotos(board) {
   const grid = document.getElementById('photosGrid');
   const photos = (board.photos && board.photos.length) ? board.photos : [null, null, null, null, null, null];
-  grid.innerHTML = photos.map(src => src ? `<img src="${src}">` : `<div class="ph">📷</div>`).join('');
+  grid.innerHTML = photos.map((src, i) => {
+    if (!src) return `<div class="ph">📷</div>`;
+    const sticker = hiddenObjectStickerHTML(board, i);
+    return sticker ? `<div class="tile-slot"><img src="${src}">${sticker}</div>` : `<img src="${src}">`;
+  }).join('');
 }
 
 function renderObjectGuess(board) {
@@ -252,7 +256,10 @@ function renderFinal(board) {
 
 function showVideo(board) {
   const el = document.getElementById('videoSection');
-  if (board.video && board.video.dataUrl) {
+  if (board.montage && board.montage.items && board.montage.items.length) {
+    el.innerHTML = `<div class="video-block"><h2>🎬 Le montage surprise</h2><div id="montagePlayerReveal" class="montage-player"></div></div>`;
+    renderMontagePlayer(document.getElementById('montagePlayerReveal'), board.montage, { uid: 'reveal' });
+  } else if (board.video && board.video.dataUrl) {
     el.innerHTML = `<div class="video-block"><h2>🎬 Vidéo surprise</h2><video controls autoplay src="${board.video.dataUrl}"></video></div>`;
   } else {
     el.innerHTML = `<div class="video-block">
