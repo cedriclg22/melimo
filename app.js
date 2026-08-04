@@ -279,38 +279,61 @@ function posterDiffHTML(board) {
   return frame + frame;
 }
 
+function ribbonLabel(num, text, solo) {
+  return `<div class="ribbon-label${solo ? ' solo' : ''}">${solo ? '' : `<div class="pnum-badge">${num}</div>`}<div class="ribbon">${text}</div></div>`;
+}
+
 function renderPosterInto(container, board, opts = {}) {
   const qrTarget = opts.qrTarget;
-  const qrHTML = qrTarget
-    ? `<img src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=8&color=b83d63&data=${encodeURIComponent(qrTarget)}" alt="QR code vers le tableau interactif" width="140" height="140"><p>Découvre ta<br>vidéo cachée</p>`
-    : `<div class="qr-fake">QR</div><p>Généré à la publication</p>`;
+  const qrImg = qrTarget
+    ? `<img class="mini-qr" src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=6&color=b83d63&data=${encodeURIComponent(qrTarget)}" alt="QR code vers le tableau interactif">`
+    : `<div class="mini-qr qr-fake">QR</div>`;
 
   container.innerHTML = `
     <div class="print-poster">
-      <div class="poster-top">
+      <div class="mosaic-wrap">
+        <span class="corner-deco tl">🌿</span>
         <div class="mosaic">${posterMosaicHTML(board)}</div>
-        <div class="plabel"><div class="pnum">1</div><div class="ptext">Objet caché :<span class="pline"></span></div></div>
+        <span class="corner-deco tr">🌿</span>
       </div>
 
-      <div class="deco-arrow a1">↷</div>
-
-      <div class="poster-grid2x2">
-        <div class="pcard pcard-rebus">
-          <div class="rebus-box2">${posterRebusHTML(board)}</div>
-          <div class="deco-arrow a2">↶</div>
-          <div class="plabel"><div class="pnum">3</div><div class="ptext">Mot trouvé :<span class="pline"></span></div></div>
+      <div class="poster-cols">
+        <div class="poster-left-col">
+          <div class="pcard pcard-found">
+            ${ribbonLabel(1, 'Objet caché')}
+            <div class="pcard-body"><p class="card-instruction">Écris ici l'objet trouvé :</p></div>
+            <div class="answer-blank"></div>
+          </div>
+          <div class="pcard pcard-rebus">
+            ${ribbonLabel(3, 'Mot trouvé')}
+            <div class="pcard-body"><div class="rebus-box2">${posterRebusHTML(board)}</div></div>
+            <div class="answer-blank"></div>
+          </div>
         </div>
         <div class="pcard pcard-flech">
-          <div class="plabel"><div class="pnum">2</div><div class="ptext">Mot trouvé :<span class="pline"></span></div></div>
-          <div class="flech-scroll">${posterFlecheesHTML(board)}</div>
+          ${ribbonLabel(2, 'Mot croisé')}
+          <div class="pcard-body"><div class="flech-scroll">${posterFlecheesHTML(board)}</div></div>
+          <div class="answer-blank"></div>
         </div>
-        <div class="pcard pcard-diff">
-          <div class="plabel"><div class="pnum">4</div><div class="ptext">Case différente :<span class="pline"></span></div></div>
+      </div>
+
+      <div class="pcard pcard-diff">
+        ${ribbonLabel(4, 'Case différente')}
+        <div class="pcard-body">
+          <p class="card-instruction">Quelle est la case différente entre ces deux images ?</p>
           <div class="diff-pair">${posterDiffHTML(board)}</div>
         </div>
-        <div class="pcard pcard-final">
-          <div class="plabel"><div class="pnum">✓</div><div class="ptext">Mot final :<span class="pline"></span></div></div>
-          <div class="qr-block">${qrHTML}</div>
+        <div class="answer-blank"></div>
+      </div>
+
+      <div class="pcard pcard-final">
+        ${ribbonLabel(null, 'Mot final', true)}
+        <div class="pcard-body">
+          <div class="play-button-wrap">
+            <div class="play-button"><span class="tri"></span></div>
+          </div>
+          <p class="final-caption">Découvre ta<br>vidéo cachée !</p>
+          ${qrImg}
         </div>
       </div>
     </div>

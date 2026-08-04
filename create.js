@@ -31,33 +31,49 @@ function renderShell() {
         <input type="color" id="colorSecondaryInput" value="${state.colorSecondary}" title="Couleur secondaire">
       </div>
       <div class="print-poster" id="posterRoot">
-        <div class="poster-top">
+        <div class="mosaic-wrap">
+          <span class="corner-deco tl">🌿</span>
           <div class="mosaic" id="edMosaic"></div>
-          <div class="plabel"><div class="pnum">1</div><div class="ptext">Objet caché :<input class="pinput" id="edHiddenObject" placeholder="ex : un baby-foot" value="${state.hiddenObject}"></div></div>
+          <span class="corner-deco tr">🌿</span>
         </div>
 
-        <div class="deco-arrow a1">↷</div>
-
-        <div class="poster-grid2x2">
-          <div class="pcard pcard-rebus clickable" id="edRebusCard" title="Clique pour choisir le rébus">
-            <span class="pcard-hint">✏️</span>
-            <div class="rebus-box2" id="edRebusBox"></div>
-            <div class="deco-arrow a2">↶</div>
-            <div class="plabel"><div class="pnum">3</div><div class="ptext">Mot trouvé :<span class="pline"></span></div></div>
+        <div class="poster-cols">
+          <div class="poster-left-col">
+            <div class="pcard pcard-found">
+              ${ribbonLabel(1, 'Objet caché')}
+              <div class="pcard-body"><p class="card-instruction">Écris ici l'objet trouvé :</p></div>
+              <input type="text" class="answer-blank-input" id="edHiddenObject" placeholder="ex : un baby-foot" value="${state.hiddenObject}">
+            </div>
+            <div class="pcard pcard-rebus clickable" id="edRebusCard" title="Clique pour choisir le rébus">
+              ${ribbonLabel(3, 'Mot trouvé')}
+              <div class="pcard-body"><div class="rebus-box2" id="edRebusBox"></div></div>
+              <input type="text" class="answer-blank-input" id="edRebusAnswer" placeholder="ex : Bateau" value="${state.rebusAnswer}">
+            </div>
           </div>
           <div class="pcard pcard-flech clickable" id="edFlechCard" title="Clique pour ajouter des mots">
-            <span class="pcard-hint">✏️</span>
-            <div class="plabel"><div class="pnum">2</div><div class="ptext">Mot trouvé :<span class="pline"></span></div></div>
-            <div class="flech-scroll" id="edFlechWrap"></div>
+            ${ribbonLabel(2, 'Mot croisé')}
+            <div class="pcard-body"><div class="flech-scroll" id="edFlechWrap"></div></div>
+            <div class="answer-blank"></div>
           </div>
-          <div class="pcard pcard-diff">
-            <div class="plabel"><div class="pnum">4</div><div class="ptext">Case différente :<span class="pline"></span></div></div>
+        </div>
+
+        <div class="pcard pcard-diff">
+          ${ribbonLabel(4, 'Case différente')}
+          <div class="pcard-body">
+            <p class="card-instruction">Quelle est la case différente entre ces deux images ?</p>
             <div class="diff-card-body" id="edDiffFrame"></div>
           </div>
-          <div class="pcard pcard-final">
-            <div class="plabel"><div class="pnum">✓</div><div class="ptext">Mot final :<input class="pinput" id="edFinalWord" placeholder="ex : Vacances" value="${state.finalWord}"></div></div>
-            <div class="qr-block clickable" id="edVideoBlock"></div>
-          </div>
+          <div class="answer-blank"></div>
+        </div>
+
+        <div class="pcard pcard-final">
+          ${ribbonLabel(null, 'Mot final', true)}
+          <label class="pcard-body" id="edVideoBlock" style="cursor:pointer;" title="Clique pour ajouter la vidéo surprise">
+            <div class="play-button-wrap"><div class="play-button"><span class="tri"></span></div></div>
+            <p class="final-caption" id="edVideoCaption">Découvre ta<br>vidéo cachée !</p>
+            <input type="file" id="videoInputEd" accept="video/*" hidden>
+          </label>
+          <input type="text" class="answer-blank-input" id="edFinalWord" placeholder="Réponse attendue (ex : Vacances)" value="${state.finalWord}">
         </div>
       </div>
     </div>
@@ -69,14 +85,10 @@ function renderShell() {
     </div>
 
     <div class="inline-editor" id="rebusEditor" hidden>
-      <p class="hint">Choisis 2 à 4 emojis, puis indique le mot qu'ils évoquent (pour vérification).</p>
+      <p class="hint">Choisis 2 à 4 emojis qui, mis bout à bout, évoquent le mot à deviner (écris la réponse directement sur le tableau).</p>
       <div class="rebus-sequence" id="rebusSequence"></div>
       <div class="emoji-picker" id="emojiPicker"></div>
       <button class="btn ghost" type="button" id="clearRebusBtn">Effacer</button>
-      <div class="field" style="margin-top:12px;">
-        <label>Mot à deviner</label>
-        <input type="text" id="rebusAnswer" placeholder="ex : Bateau" value="${state.rebusAnswer}">
-      </div>
     </div>
   `;
 }
@@ -231,25 +243,17 @@ function renderDiffFrameInto() {
 }
 
 /* ---------- Vidéo surprise ---------- */
-function renderVideoBlockInto() {
-  const el = document.getElementById('edVideoBlock');
-  const content = state.video
-    ? `<div style="font-size:1.3rem;">🎬</div><p style="max-width:90px; margin:2px auto 0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:700; font-size:.62rem;">${state.video.name}</p>`
-    : `<div style="font-size:1.3rem;">+</div><p style="margin:2px 0 0; font-size:.7rem;">Vidéo</p>`;
-  el.innerHTML = `<label style="cursor:pointer; display:block;">${content}<input type="file" id="videoInputEd" accept="video/*" hidden></label>`;
-  document.getElementById('videoInputEd').addEventListener('change', async (e) => {
-    const f = e.target.files[0];
-    if (!f) return;
-    state.video = { name: f.name, dataUrl: await fileToDataUrl(f) };
-    renderVideoBlockInto();
-  });
+function renderVideoCaption() {
+  document.getElementById('edVideoCaption').innerHTML = state.video
+    ? `🎬 ${state.video.name}<br><span style="font-weight:500; opacity:.7;">(clique pour changer)</span>`
+    : `Découvre ta<br>vidéo cachée !`;
 }
 
 /* ---------- Listeners statiques (attachés une fois) ---------- */
 function attachStaticListeners() {
   document.getElementById('edHiddenObject').addEventListener('input', (e) => state.hiddenObject = e.target.value);
   document.getElementById('edFinalWord').addEventListener('input', (e) => state.finalWord = e.target.value);
-  document.getElementById('rebusAnswer').addEventListener('input', (e) => state.rebusAnswer = e.target.value);
+  document.getElementById('edRebusAnswer').addEventListener('input', (e) => state.rebusAnswer = e.target.value);
 
   document.getElementById('colorPrimaryInput').addEventListener('input', (e) => { state.colorPrimary = e.target.value; applyPosterColors(); });
   document.getElementById('colorSecondaryInput').addEventListener('input', (e) => { state.colorSecondary = e.target.value; applyPosterColors(); });
@@ -259,7 +263,8 @@ function attachStaticListeners() {
     editor.hidden = !editor.hidden;
     if (!editor.hidden) editor.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   });
-  document.getElementById('edRebusCard').addEventListener('click', () => {
+  document.getElementById('edRebusCard').addEventListener('click', (e) => {
+    if (e.target.closest('.answer-blank-input')) return;
     const editor = document.getElementById('rebusEditor');
     editor.hidden = !editor.hidden;
     if (!editor.hidden) editor.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -274,6 +279,13 @@ function attachStaticListeners() {
     state.rebusEmojis = [];
     renderRebusEditorSequence();
     renderRebusBoxInto();
+  });
+
+  document.getElementById('videoInputEd').addEventListener('change', async (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+    state.video = { name: f.name, dataUrl: await fileToDataUrl(f) };
+    renderVideoCaption();
   });
 }
 
@@ -298,7 +310,7 @@ document.getElementById('demoFillBtn').addEventListener('click', () => {
   fillDemoData();
   document.getElementById('edHiddenObject').value = state.hiddenObject;
   document.getElementById('edFinalWord').value = state.finalWord;
-  document.getElementById('rebusAnswer').value = state.rebusAnswer;
+  document.getElementById('edRebusAnswer').value = state.rebusAnswer;
   document.getElementById('colorPrimaryInput').value = state.colorPrimary;
   document.getElementById('colorSecondaryInput').value = state.colorSecondary;
   applyPosterColors();
@@ -308,7 +320,7 @@ document.getElementById('demoFillBtn').addEventListener('click', () => {
   renderRebusEditorSequence();
   renderRebusBoxInto();
   renderDiffFrameInto();
-  renderVideoBlockInto();
+  renderVideoCaption();
 });
 
 function fillDemoData() {
@@ -346,4 +358,4 @@ renderEmojiPickerInto();
 renderRebusEditorSequence();
 renderRebusBoxInto();
 renderDiffFrameInto();
-renderVideoBlockInto();
+renderVideoCaption();
