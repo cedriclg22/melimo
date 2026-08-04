@@ -47,6 +47,21 @@ function initScrollspy() {
   sections.forEach(s => observer.observe(s));
 }
 
+/* ---------- Aperçu en direct de l'affiche ---------- */
+function updatePreview() {
+  const panel = document.getElementById('livePoster');
+  if (!panel) return;
+  const preview = { ...state };
+  if (!preview.crossword) {
+    const valid = state.words.filter(w => w.word.trim() && w.clue.trim());
+    if (valid.length >= 2) preview.crossword = generateCrossword(valid);
+  }
+  panel.style.setProperty('--primary', state.colorPrimary);
+  panel.style.setProperty('--secondary', state.colorSecondary);
+  panel.style.setProperty('--primary-dark', shade(state.colorPrimary, -18));
+  renderPosterInto(panel, preview);
+}
+
 /* ---------- Step 1: photos ---------- */
 function renderPhotoGrid() {
   const grid = document.getElementById('photoGrid');
@@ -63,6 +78,7 @@ function renderPhotoGrid() {
       renderPhotoGrid();
     });
   });
+  updatePreview();
 }
 document.getElementById('photoInput').addEventListener('change', async (e) => {
   const files = Array.from(e.target.files).slice(0, 10 - state.photos.length);
@@ -74,6 +90,7 @@ document.getElementById('photoInput').addEventListener('change', async (e) => {
 });
 document.getElementById('hiddenObject').addEventListener('input', (e) => {
   state.hiddenObject = e.target.value;
+  updatePreview();
 });
 
 /* ---------- Step 2: mots fléchés ---------- */
@@ -96,14 +113,18 @@ function renderWordRows() {
       const i = Number(e.target.dataset.i);
       const field = e.target.dataset.field;
       state.words[i][field] = field === 'key' ? e.target.checked : e.target.value;
+      state.crossword = null;
+      updatePreview();
     });
   });
   wrap.querySelectorAll('[data-del]').forEach(btn => {
     btn.addEventListener('click', () => {
       state.words.splice(Number(btn.dataset.del), 1);
+      state.crossword = null;
       renderWordRows();
     });
   });
+  updatePreview();
 }
 document.getElementById('addWordBtn').addEventListener('click', () => {
   if (state.words.length >= 10) return;
@@ -119,6 +140,7 @@ document.getElementById('genGridBtn').addEventListener('click', () => {
   const cw = generateCrossword(valid);
   state.crossword = cw;
   document.getElementById('gridPreview').innerHTML = renderCrosswordPreview(cw);
+  updatePreview();
 });
 function renderCrosswordPreview(cw) {
   if (!cw.placed.length) return '';
@@ -165,6 +187,7 @@ function renderRebusSequence() {
       renderRebusSequence();
     });
   });
+  updatePreview();
 }
 document.getElementById('clearRebusBtn').addEventListener('click', () => {
   state.rebusEmojis = [];
@@ -172,6 +195,7 @@ document.getElementById('clearRebusBtn').addEventListener('click', () => {
 });
 document.getElementById('rebusAnswer').addEventListener('input', (e) => {
   state.rebusAnswer = e.target.value;
+  updatePreview();
 });
 
 /* ---------- Step 4: jeu des différences ---------- */
@@ -195,6 +219,7 @@ function renderDiffEditor() {
     state.diffPoint = { x, y };
     renderDiffEditor();
   });
+  updatePreview();
 }
 
 /* ---------- Step 5: cover + vidéo ---------- */
@@ -211,9 +236,9 @@ document.getElementById('videoInput').addEventListener('change', async (e) => {
 });
 
 /* ---------- Step 6: couleurs + mot final ---------- */
-document.getElementById('colorPrimary').addEventListener('input', (e) => state.colorPrimary = e.target.value);
-document.getElementById('colorSecondary').addEventListener('input', (e) => state.colorSecondary = e.target.value);
-document.getElementById('finalWord').addEventListener('input', (e) => state.finalWord = e.target.value);
+document.getElementById('colorPrimary').addEventListener('input', (e) => { state.colorPrimary = e.target.value; updatePreview(); });
+document.getElementById('colorSecondary').addEventListener('input', (e) => { state.colorSecondary = e.target.value; updatePreview(); });
+document.getElementById('finalWord').addEventListener('input', (e) => { state.finalWord = e.target.value; updatePreview(); });
 
 /* ---------- Générer le tableau ---------- */
 document.getElementById('generateBtn').addEventListener('click', () => {
