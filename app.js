@@ -330,7 +330,7 @@ function renderPosterInto(container, board, opts = {}) {
           </div>
         </div>
         <div class="pcard pcard-flech">
-          ${ribbonLabel(2, 'Mot croisé')}
+          ${ribbonLabel(2, 'Mots fléchés')}
           <div class="pcard-body"><div class="flech-scroll">${posterFlecheesHTML(board)}</div></div>
           <div class="answer-blank"></div>
         </div>
@@ -381,33 +381,48 @@ const EMOJI_LIBRARY = [
 ];
 
 /* ---------- Générateur de rébus ----------
-   Dictionnaire de mots/syllabes français courants associés à un emoji.
-   suggestRebus() essaie d'abord le mot entier, puis découpe le mot en
-   segments connus (les plus longs en premier) pour construire un rébus
-   phonétique ; ce qui n'est pas reconnu reste affiché en texte. */
+   Grand dictionnaire de mots français courants (vocabulaire "souvenir de
+   famille" inclus) associés à un emoji. suggestRebus() essaie d'abord le
+   mot entier (avec repli pluriel/féminin -s/-x/-e), puis découpe le mot
+   en segments connus (les plus longs en premier) pour construire un
+   rébus phonétique ; ce qui n'est pas reconnu reste affiché en texte. */
 const REBUS_DICTIONARY = {
   pain: '🍞', main: '✋', bain: '🛁', train: '🚂', faim: '🍽️',
   lit: '🛏️', riz: '🍚', nid: '🪺', pie: '🐦', roi: '👑',
-  mer: '🌊', mere: '🌊', eau: '💧',
+  mer: '🌊', mere: '🌊', eau: '💧', air: '💨',
   ver: '🐛', vert: '🐛', verre: '🐛', vers: '🐛',
   seau: '🪣', sceau: '🪣', pot: '🍯', peau: '🧴',
-  beau: '✨', ile: '🏝️', fee: '🧚', fer: '🧲', nez: '👃',
+  beau: '✨', bo: '✨', ile: '🏝️', fee: '🧚', fer: '🧲', nez: '👃',
   dent: '🦷', coeur: '❤️', soeur: '👧', heure: '⏰',
   fleur: '🌸', peur: '😨', oeuf: '🥚', boeuf: '🐂', neuf: '9️⃣',
   chat: '🐱', chatte: '🐱', rat: '🐀', loup: '🐺', ourse: '🐻', ours: '🐻',
   vache: '🐄', poule: '🐔', canard: '🦆', poisson: '🐟', lion: '🦁',
-  singe: '🐒', cheval: '🐴', ane: '🫏', abeille: '🐝', papillon: '🦋',
+  singe: '🐒', cheval: '🐴', chevaux: '🐴', ane: '🫏', abeille: '🐝', papillon: '🦋',
   serpent: '🐍', tortue: '🐢', grenouille: '🐸', araignee: '🕷️', souris: '🐭',
+  tigre: '🐯', elephant: '🐘', girafe: '🦒', lapin: '🐰', renard: '🦊',
+  hibou: '🦉', aigle: '🦅', dauphin: '🐬', baleine: '🐳', requin: '🦈',
+  cochon: '🐷', mouton: '🐑', chevre: '🐐', poussin: '🐤', licorne: '🦄',
+  dragon: '🐉', robot: '🤖', fusee: '🚀', sirene: '🧜‍♀️',
   soleil: '☀️', lune: '🌙', etoile: '⭐', pluie: '🌧️', neige: '❄️',
   vent: '💨', nuage: '☁️', feu: '🔥', terre: '🌍',
-  arbre: '🌳', fleuriste: '🌸', feuille: '🍁',
+  arbre: '🌳', fleuriste: '🌸', feuille: '🍁', arcenciel: '🌈',
+  montagne: '⛰️', foret: '🌲', plage: '🏖️', jardin: '🌷',
   maison: '🏠', porte: '🚪', cle: '🔑', livre: '📚', crayon: '✏️',
+  chambre: '🛌', cuisine: '🍳', ecole: '🏫', jouet: '🧸', doudou: '🧸',
   lait: '🥛', fromage: '🧀', gateau: '🎂', glace: '🍦', pomme: '🍎',
-  raisin: '🍇', citron: '🍋', fraise: '🍓', miel: '🍯',
+  raisin: '🍇', citron: '🍋', fraise: '🍓', miel: '🍯', bonbon: '🍬',
+  chocolat: '🍫', pizza: '🍕', the: '🍵', cafe: '☕',
   bateau: '⛵', voiture: '🚗', velo: '🚲', avion: '✈️',
   ballon: '🎈', cadeau: '🎁', musique: '🎵', guitare: '🎸',
   tambour: '🥁', cloche: '🔔', valise: '🧳', chapeau: '🎩',
-  lunettes: '👓', parapluie: '☂️', cygne: '🦢',
+  lunettes: '👓', parapluie: '☂️', cygne: '🦢', bougie: '🕯️',
+  famille: '👨‍👩‍👧‍👦', vacances: '🏖️', anniversaire: '🎂', weekend: '🎉',
+  noel: '🎄', ete: '☀️', hiver: '❄️', printemps: '🌸', automne: '🍁',
+  bebe: '👶', enfant: '🧒', papi: '👴', mamie: '👵',
+  amour: '❤️', bonheur: '😄', sourire: '😊', rire: '😂', calin: '🤗',
+  bisou: '😘', copain: '🧑‍🤝‍🧑', copine: '🧑‍🤝‍🧑',
+  danse: '💃', chanson: '🎶', dessin: '🎨', reve: '💭',
+  nuit: '🌙', matin: '🌅', voyage: '🧳', souvenir: '📸',
   un: '1️⃣', deux: '2️⃣', trois: '3️⃣', dix: '🔟', cent: '💯'
 };
 
@@ -419,10 +434,21 @@ function normalizeFr(str) {
     .replace(/[^a-z]/g, '');
 }
 
+function rebusLookup(chunk) {
+  if (REBUS_DICTIONARY[chunk]) return REBUS_DICTIONARY[chunk];
+  if (chunk.length > 3) {
+    for (const suffix of ['s', 'x', 'e']) {
+      if (chunk.endsWith(suffix) && REBUS_DICTIONARY[chunk.slice(0, -1)]) return REBUS_DICTIONARY[chunk.slice(0, -1)];
+    }
+  }
+  return null;
+}
+
 function suggestRebus(word) {
   const norm = normalizeFr(word);
   if (!norm) return [];
-  if (REBUS_DICTIONARY[norm]) return [REBUS_DICTIONARY[norm]];
+  const direct = rebusLookup(norm);
+  if (direct) return [direct];
 
   const tokens = [];
   let pendingText = '';
@@ -431,9 +457,10 @@ function suggestRebus(word) {
   let i = 0;
   while (i < norm.length) {
     let matched = null, matchedLen = 0;
-    for (let len = Math.min(10, norm.length - i); len >= 2; len--) {
+    for (let len = Math.min(14, norm.length - i); len >= 2; len--) {
       const chunk = norm.slice(i, i + len);
-      if (REBUS_DICTIONARY[chunk]) { matched = REBUS_DICTIONARY[chunk]; matchedLen = len; break; }
+      const hit = rebusLookup(chunk);
+      if (hit) { matched = hit; matchedLen = len; break; }
     }
     if (matched) {
       flush();

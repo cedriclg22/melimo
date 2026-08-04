@@ -8,13 +8,12 @@ const state = {
   hiddenObjectPhoto: null, // index into photos
   hiddenObjectPoint: null, // {x, y} percent within that photo
   hiddenObjectEmoji: '',
-  words: [{ word: '', clue: '', key: false }],
+  words: WORD_SUGGESTIONS.map((w, i) => ({ word: w.word, clue: w.clue, key: i === 0 })),
   crossword: null,
   rebusEmojis: [],
   rebusAnswer: '',
   diffPhoto: null,
   diffPoint: null,
-  video: null, // {name, dataUrl}
   montage: { items: [], audio: null }, // {items:[{type:'photo'|'video', src, duration, name}], audio:{name,dataUrl}}
   colorPrimary: '#d9527a',
   colorSecondary: '#fbead9',
@@ -55,7 +54,7 @@ function renderShell() {
             </div>
           </div>
           <div class="pcard pcard-flech clickable" id="edFlechCard" title="Clique pour ajouter des mots">
-            ${ribbonLabel(2, 'Mot croisé')}
+            ${ribbonLabel(2, 'Mots fléchés')}
             <div class="pcard-body"><div class="flech-scroll" id="edFlechWrap"></div></div>
             <div class="answer-blank"></div>
           </div>
@@ -70,24 +69,19 @@ function renderShell() {
           <div class="answer-blank"></div>
         </div>
 
-        <div class="pcard pcard-final">
+        <div class="pcard pcard-final clickable" id="edFinalCard" title="Clique pour composer la vidéo surprise (photos + vidéo + son)">
           ${ribbonLabel(null, 'Mot final', true)}
-          <label class="pcard-body" id="edVideoBlock" style="cursor:pointer;" title="Clique pour ajouter la vidéo surprise">
+          <div class="pcard-body" id="edMontageSummaryBody">
             <div class="play-button-wrap"><div class="play-button"><span class="tri"></span></div></div>
-            <p class="final-caption" id="edVideoCaption">Découvre ta<br>vidéo cachée !</p>
-            <input type="file" id="videoInputEd" accept="video/*" hidden>
-          </label>
+            <p class="final-caption" id="edMontageCaption">Compose ta<br>vidéo surprise !</p>
+          </div>
           <input type="text" class="answer-blank-input" id="edFinalWord" placeholder="Réponse attendue (ex : Vacances)" value="${state.finalWord}">
         </div>
       </div>
-
-      <p class="hint" style="text-align:center; margin-top:10px;">
-        <a href="#" id="openMontageLink">🎬 Ou crée un montage (photos + vidéo + son) pour la vidéo surprise</a>
-      </p>
     </div>
 
     <div class="inline-editor" id="hiddenObjEditor" hidden>
-      <p class="hint">Choisis une photo du pêle-mêle, puis clique dessus pour y cacher un objet.</p>
+      <p class="hint">Un objet est déjà caché par défaut : glisse-le directement sur une photo du pêle-mêle ci-dessus pour le repositionner. Tu peux aussi choisir une autre photo, un autre emplacement ou un autre objet ici :</p>
       <div class="hobj-photo-picker" id="hobjPhotoPicker"></div>
       <div class="hobj-placer" id="hobjPlacer"></div>
       <p class="hint" style="margin:4px 0 8px;">Objet à cacher :</p>
@@ -96,7 +90,7 @@ function renderShell() {
     </div>
 
     <div class="inline-editor" id="wordsEditor" hidden>
-      <p class="hint">Ajoute jusqu'à 10 mots avec leur définition. Pas d'inspiration ? Clique sur « Idées de mots ». Coche « clé » pour le(s) mot(s) qui doivent apparaître dans le message final.</p>
+      <p class="hint">10 mots avec leur définition, déjà pré-remplis : modifie-les comme tu veux, ou clique sur « Idées de mots » pour repartir d'exemples. Coche « clé » pour le(s) mot(s) qui doivent apparaître dans le message final.</p>
       <div id="wordRows"></div>
       <div class="words-editor-actions">
         <button class="btn ghost" type="button" id="addWordBtn">+ Ajouter un mot</button>
@@ -116,7 +110,7 @@ function renderShell() {
     </div>
 
     <div class="inline-editor" id="montageEditor" hidden>
-      <p class="hint">Ajoute des photos, une vidéo et une musique : ils s'enchaîneront automatiquement pour former le montage surprise, à la place (ou en plus) d'une simple vidéo.</p>
+      <p class="hint">Ajoute des photos, une vidéo et une musique : ils s'enchaîneront automatiquement pour former la vidéo surprise finale.</p>
       <div class="montage-items" id="montageItemsList"></div>
       <div style="display:flex; gap:10px; flex-wrap:wrap; margin:12px 0;">
         <label class="btn ghost">+ Photos<input type="file" id="montagePhotoInput" accept="image/*" multiple hidden></label>
@@ -138,11 +132,18 @@ function applyPosterColors() {
 }
 
 /* ---------- Pêle-mêle ---------- */
+function ensureDefaultHiddenObject() {
+  if (state.hiddenObjectPhoto === null && state.photos.length) {
+    state.hiddenObjectPhoto = 0;
+    state.hiddenObjectPoint = { x: 68, y: 72 };
+    state.hiddenObjectEmoji = state.hiddenObjectEmoji || EMOJI_LIBRARY[0];
+  }
+}
 function renderMosaicInto() {
   const el = document.getElementById('edMosaic');
   let html = state.photos.map((src, i) => {
     const sticker = (state.hiddenObjectPhoto === i && state.hiddenObjectPoint && state.hiddenObjectEmoji)
-      ? `<span class="hobj-sticker" style="left:${state.hiddenObjectPoint.x}%; top:${state.hiddenObjectPoint.y}%;">${state.hiddenObjectEmoji}</span>`
+      ? `<span class="hobj-sticker draggable" data-i="${i}" style="left:${state.hiddenObjectPoint.x}%; top:${state.hiddenObjectPoint.y}%;" title="Glisse pour repositionner">${state.hiddenObjectEmoji}</span>`
       : '';
     return `<div class="tile-slot ${MOSAIC_SPANS[i] || ''}"><img src="${src}">${sticker}<button class="rm" data-i="${i}" type="button">✕</button></div>`;
   }).join('');
@@ -151,7 +152,8 @@ function renderMosaicInto() {
   }
   el.innerHTML = html;
   el.querySelectorAll('.rm').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
       const i = Number(btn.dataset.i);
       state.photos.splice(i, 1);
       if (state.hiddenObjectPhoto === i) {
@@ -160,21 +162,58 @@ function renderMosaicInto() {
       } else if (state.hiddenObjectPhoto > i) {
         state.hiddenObjectPhoto -= 1;
       }
+      ensureDefaultHiddenObject();
       renderMosaicInto();
       renderHobjPhotoPicker();
       renderHobjPlacer();
     });
   });
+  const stickerEl = el.querySelector('.hobj-sticker.draggable');
+  if (stickerEl) attachStickerDrag(stickerEl);
   const input = document.getElementById('mosaicInput');
   if (input) {
     input.addEventListener('change', async (e) => {
       const files = Array.from(e.target.files).slice(0, 6 - state.photos.length);
       for (const f of files) state.photos.push(await fileToDataUrl(f));
+      ensureDefaultHiddenObject();
       renderMosaicInto();
       renderHobjPhotoPicker();
+      renderHobjPlacer();
       e.target.value = '';
     });
   }
+}
+function attachStickerDrag(stickerEl) {
+  const tile = stickerEl.closest('.tile-slot');
+  let dragging = false;
+  const move = (clientX, clientY) => {
+    const rect = tile.getBoundingClientRect();
+    const x = Math.max(4, Math.min(96, ((clientX - rect.left) / rect.width) * 100));
+    const y = Math.max(4, Math.min(96, ((clientY - rect.top) / rect.height) * 100));
+    state.hiddenObjectPoint = { x, y };
+    stickerEl.style.left = x + '%';
+    stickerEl.style.top = y + '%';
+  };
+  stickerEl.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragging = true;
+    stickerEl.classList.add('dragging');
+    stickerEl.setPointerCapture(e.pointerId);
+  });
+  stickerEl.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    move(e.clientX, e.clientY);
+  });
+  const finish = (e) => {
+    if (!dragging) return;
+    dragging = false;
+    stickerEl.classList.remove('dragging');
+    try { stickerEl.releasePointerCapture(e.pointerId); } catch (err) {}
+    renderHobjPlacer();
+  };
+  stickerEl.addEventListener('pointerup', finish);
+  stickerEl.addEventListener('pointercancel', finish);
 }
 
 /* ---------- Objet caché ---------- */
@@ -351,14 +390,23 @@ function renderDiffFrameInto() {
   });
 }
 
-/* ---------- Vidéo surprise ---------- */
-function renderVideoCaption() {
-  document.getElementById('edVideoCaption').innerHTML = state.video
-    ? `🎬 ${state.video.name}<br><span style="font-weight:500; opacity:.7;">(clique pour changer)</span>`
-    : `Découvre ta<br>vidéo cachée !`;
+/* ---------- Montage (photos + vidéo + son), dans le bloc « Mot final » ---------- */
+function renderMontageSummary() {
+  const el = document.getElementById('edMontageCaption');
+  if (!el) return;
+  const items = state.montage.items;
+  if (!items.length) {
+    el.innerHTML = `Compose ta<br>vidéo surprise !`;
+    return;
+  }
+  const photoCount = items.filter(i => i.type === 'photo').length;
+  const videoCount = items.filter(i => i.type === 'video').length;
+  const parts = [];
+  if (photoCount) parts.push(`${photoCount} photo${photoCount > 1 ? 's' : ''}`);
+  if (videoCount) parts.push(`${videoCount} vidéo${videoCount > 1 ? 's' : ''}`);
+  if (state.montage.audio) parts.push('musique');
+  el.innerHTML = `🎬 ${parts.join(' + ')}<br><span style="font-weight:500; opacity:.7;">(clique pour modifier)</span>`;
 }
-
-/* ---------- Montage (photos + vidéo + son) ---------- */
 function renderMontageItemsInto() {
   const wrap = document.getElementById('montageItemsList');
   if (!wrap) return;
@@ -398,6 +446,7 @@ function renderMontageItemsInto() {
   wrap.querySelectorAll('[data-mdel]').forEach(btn => btn.addEventListener('click', () => {
     state.montage.items.splice(Number(btn.dataset.mdel), 1);
     renderMontageItemsInto();
+    renderMontageSummary();
   }));
 }
 function renderMontageAudioRow() {
@@ -407,7 +456,7 @@ function renderMontageAudioRow() {
     ? `<p class="hint" style="margin:0 0 10px;">🎵 ${state.montage.audio.name} <button type="button" id="montageAudioDel" style="margin-left:6px; background:#f5dbe1; border:none; border-radius:50%; width:22px; height:22px; cursor:pointer;">✕</button></p>`
     : '';
   const del = document.getElementById('montageAudioDel');
-  if (del) del.addEventListener('click', () => { state.montage.audio = null; renderMontageAudioRow(); });
+  if (del) del.addEventListener('click', () => { state.montage.audio = null; renderMontageAudioRow(); renderMontageSummary(); });
 }
 
 /* ---------- Listeners statiques (attachés une fois) ---------- */
@@ -436,8 +485,8 @@ function attachStaticListeners() {
     editor.hidden = !editor.hidden;
     if (!editor.hidden) editor.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   });
-  document.getElementById('openMontageLink').addEventListener('click', (e) => {
-    e.preventDefault();
+  document.getElementById('edFinalCard').addEventListener('click', (e) => {
+    if (e.target.closest('.answer-blank-input')) return;
     const editor = document.getElementById('montageEditor');
     editor.hidden = !editor.hidden;
     if (!editor.hidden) editor.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -497,17 +546,11 @@ function attachStaticListeners() {
     renderRebusBoxInto();
   });
 
-  document.getElementById('videoInputEd').addEventListener('change', async (e) => {
-    const f = e.target.files[0];
-    if (!f) return;
-    state.video = { name: f.name, dataUrl: await fileToDataUrl(f) };
-    renderVideoCaption();
-  });
-
   document.getElementById('montagePhotoInput').addEventListener('change', async (e) => {
     const files = Array.from(e.target.files);
     for (const f of files) state.montage.items.push({ type: 'photo', src: await fileToDataUrl(f), duration: 2.5 });
     renderMontageItemsInto();
+    renderMontageSummary();
     e.target.value = '';
   });
   document.getElementById('montageVideoInput').addEventListener('change', async (e) => {
@@ -515,6 +558,7 @@ function attachStaticListeners() {
     if (!f) return;
     state.montage.items.push({ type: 'video', src: await fileToDataUrl(f), name: f.name });
     renderMontageItemsInto();
+    renderMontageSummary();
     e.target.value = '';
   });
   document.getElementById('montageAudioInput').addEventListener('change', async (e) => {
@@ -522,6 +566,7 @@ function attachStaticListeners() {
     if (!f) return;
     state.montage.audio = { name: f.name, dataUrl: await fileToDataUrl(f) };
     renderMontageAudioRow();
+    renderMontageSummary();
     e.target.value = '';
   });
   document.getElementById('montagePreviewBtn').addEventListener('click', () => {
@@ -578,9 +623,9 @@ document.getElementById('demoFillBtn').addEventListener('click', () => {
   renderRebusEditorSequence();
   renderRebusBoxInto();
   renderDiffFrameInto();
-  renderVideoCaption();
   renderMontageItemsInto();
   renderMontageAudioRow();
+  renderMontageSummary();
 });
 
 function fillDemoData() {
@@ -632,6 +677,6 @@ renderEmojiPickerInto();
 renderRebusEditorSequence();
 renderRebusBoxInto();
 renderDiffFrameInto();
-renderVideoCaption();
 renderMontageItemsInto();
 renderMontageAudioRow();
+renderMontageSummary();

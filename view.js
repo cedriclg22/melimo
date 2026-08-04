@@ -94,39 +94,30 @@ function renderCrossword(board) {
     wrap.innerHTML = '<p class="hint">Pas de grille disponible.</p>';
     return;
   }
-  const cellMap = {};
-  const numbers = {};
-  cw.placed.forEach((p, idx) => {
-    const dx = p.dir === 'H' ? 1 : 0, dy = p.dir === 'V' ? 1 : 0;
-    for (let i = 0; i < p.word.length; i++) {
-      const key = `${p.x + dx * i},${p.y + dy * i}`;
-      cellMap[key] = cellMap[key] || { letter: p.word[i], key: false };
-      if (p.key) cellMap[key].key = true;
-    }
-    const startKey = `${p.x},${p.y}`;
-    if (numbers[startKey] === undefined) numbers[startKey] = idx + 1;
-  });
+  const layout = layoutFlechees(cw);
 
-  let html = `<div class="xword" style="grid-template-columns:repeat(${cw.width},40px); grid-template-rows:repeat(${cw.height},40px);">`;
-  for (let y = 0; y < cw.height; y++) {
-    for (let x = 0; x < cw.width; x++) {
+  let html = `<div class="xword-scroll"><div class="flech-grid-wrap"><div class="flech-grid" style="grid-template-columns:repeat(${layout.width},var(--fcell)); grid-template-rows:repeat(${layout.height},var(--fcell));">`;
+  for (let y = 0; y < layout.height; y++) {
+    for (let x = 0; x < layout.width; x++) {
       const key = `${x},${y}`;
-      const c = cellMap[key];
-      if (!c) { html += `<div class="cell block"></div>`; continue; }
-      const num = numbers[key];
-      html += `<div class="cell${c.key ? ' key' : ''}">
-        ${num ? `<span style="position:absolute;top:1px;left:2px;font-size:9px;font-weight:700;color:var(--primary-dark);">${num}</span>` : ''}
-        <input maxlength="1" data-x="${x}" data-y="${y}" data-letter="${c.letter}">
-      </div>`;
+      const letter = layout.letterCells[key];
+      const clue = layout.clueCells[key];
+      if (clue) {
+        html += `<div class="fcell fclue">${clue.text}<span class="farrow">${clue.arrow}</span></div>`;
+      } else if (letter) {
+        html += `<div class="fcell fletter${letter.key ? ' fkey' : ''}"><input maxlength="1" data-letter="${letter.letter}"></div>`;
+      } else {
+        html += `<div class="fcell fblock"></div>`;
+      }
     }
   }
-  html += `</div>`;
+  html += `</div></div></div>`;
 
-  html += `<ul class="clue-list">`;
-  cw.placed.forEach((p, idx) => {
-    html += `<li><b>${idx + 1}${p.dir === 'H' ? '→' : '↓'}</b> ${p.clue}${p.key ? ' 🔑' : ''}</li>`;
-  });
-  html += `</ul>`;
+  if (layout.overflowClues.length) {
+    html += `<ul class="clue-list" style="margin-top:10px;">` +
+      layout.overflowClues.map(p => `<li><b>${p.dir === 'H' ? '→' : '↓'}</b> ${p.clue}${p.key ? ' 🔑' : ''}</li>`).join('') +
+      `</ul>`;
+  }
 
   html += `<button class="btn" id="checkGridBtn" type="button">Vérifier la grille</button>
     <div class="feedback" id="gridFeedback"></div>
@@ -134,7 +125,7 @@ function renderCrossword(board) {
 
   wrap.innerHTML = html;
 
-  const inputs = Array.from(wrap.querySelectorAll('.xword input'));
+  const inputs = Array.from(wrap.querySelectorAll('.fletter input'));
   inputs.forEach((inp, i) => {
     inp.addEventListener('input', () => {
       inp.value = inp.value.toUpperCase().slice(-1);
@@ -147,7 +138,7 @@ function renderCrossword(board) {
     let allCorrect = true;
     inputs.forEach(inp => {
       const ok = inp.value === inp.dataset.letter;
-      inp.parentElement.style.background = ok ? '#d7f3df' : (inp.value ? '#f9d9d9' : '#fff');
+      inp.closest('.fletter').style.background = ok ? '#d7f3df' : (inp.value ? '#f9d9d9' : '');
       if (!ok) allCorrect = false;
     });
     const fb = document.getElementById('gridFeedback');
