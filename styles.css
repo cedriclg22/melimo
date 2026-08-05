@@ -718,13 +718,19 @@ video { max-width: 100%; border-radius: var(--radius); box-shadow: var(--shadow)
 .top-banner {
   position: relative;
   overflow: hidden;
-  padding-bottom: 30px;
+  padding-bottom: 60px;
+}
+.top-banner .hero {
+  padding: 90px 20px 20px;
+}
+@media (max-width: 640px) {
+  .top-banner .hero { padding: 60px 20px 20px; }
 }
 .top-banner::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: url('image/grand.jpeg') center 35% / cover no-repeat;
+  background: url('image/grand2.jpg') center 45% / cover no-repeat;
 }
 .top-banner::after {
   content: '';
