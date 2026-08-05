@@ -10,28 +10,26 @@
 <link rel="stylesheet" href="styles.css?v=3">
 </head>
 <body>
-  <div class="topbar">
-    <a class="logo" href="index.html">Melimo</a>
-    <nav class="nav">
-      <a class="navlink" href="#comment-ca-marche">Comment ça marche</a>
-      <a class="navlink" href="#pourquoi">Pourquoi Melimo</a>
-      <a class="navlink" href="#tarifs">Tarifs</a>
-      <a class="btn small" href="create.html">Créer mon tableau</a>
-    </nav>
-  </div>
-
-  <!-- HERO -->
-  <div class="hero">
-    <h1>Melimo 🧩</h1>
-    <p>Un tableau familial personnalisé, plein de photos, de souvenirs et de mini-jeux, à envoyer à ceux qu'on aime. Une fois les jeux résolus, une vidéo surprise se débloque.</p>
-    <div class="hero-ctas">
-      <a class="btn" href="create.html">✨ Créer mon premier tableau</a>
-      <a class="btn ghost" href="view.html?demo=1">👀 Voir un exemple</a>
+  <div class="top-banner">
+    <div class="topbar">
+      <a class="logo" href="index.html">Melimo</a>
+      <nav class="nav">
+        <a class="navlink" href="#comment-ca-marche">Comment ça marche</a>
+        <a class="navlink" href="#pourquoi">Pourquoi Melimo</a>
+        <a class="navlink" href="#tarifs">Tarifs</a>
+        <a class="btn small" href="create.html">Créer mon tableau</a>
+      </nav>
     </div>
-  </div>
 
-  <div class="hero-photo-wrap">
-    <img class="hero-photo" src="image/grand.jpeg" alt="Un tableau Melimo accroché au mur d'un salon, à côté d'une cheminée">
+    <!-- HERO -->
+    <div class="hero">
+      <h1>Melimo 🧩</h1>
+      <p>Un tableau familial personnalisé, plein de photos, de souvenirs et de mini-jeux, à envoyer à ceux qu'on aime. Une fois les jeux résolus, une vidéo surprise se débloque.</p>
+      <div class="hero-ctas">
+        <a class="btn" href="create.html">✨ Créer mon premier tableau</a>
+        <a class="btn ghost" href="view.html?demo=1">👀 Voir un exemple</a>
+      </div>
+    </div>
   </div>
 
   <!-- COMMENT CA MARCHE -->
@@ -44,6 +42,7 @@
       </div>
       <div class="tracks">
         <div class="track">
+          <img class="track-photo" src="image/fami.jpg" alt="Une maman et ses deux enfants créent leur tableau Melimo ensemble sur l'ordinateur">
           <h3>🎨 Côté famille</h3>
           <ol>
             <li><b>Pêle-mêle</b> — choisissez 5 à 10 photos et l'objet caché à retrouver.</li>
@@ -138,14 +137,12 @@
     <div class="landing-inner">
       <div class="section-head">
         <span class="kicker">Aperçu</span>
-        <h2>Essayez le tableau en direct</h2>
-        <p>Voici un vrai tableau Melimo, jouable directement ci-dessous.</p>
+        <h2>Un vrai tableau Melimo, généré en direct</h2>
+        <p>Voici à quoi ressemble l'affiche envoyée à vos proches — celle-ci est générée sous vos yeux avec des données de démo.</p>
       </div>
-      <div class="preview-frame-wrap">
-        <iframe src="view.html?demo=1" title="Aperçu d'un tableau Melimo"></iframe>
-      </div>
+      <div class="live-poster-wrap" id="livePosterPreview"></div>
       <div class="preview-cta" style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-        <a class="btn ghost" href="view.html?demo=1">Ouvrir en plein écran</a>
+        <a class="btn ghost" href="view.html?demo=1">🎮 Essayer la version interactive</a>
         <a class="btn ghost" href="poster.html?demo=1">🖨️ Voir l'affiche imprimable</a>
       </div>
     </div>
@@ -217,5 +214,10 @@
   <footer class="site-footer">
     Melimo — Les souvenirs deviennent un jeu. · Disponible sur web et bientôt en app mobile.
   </footer>
+
+  <script src="app.js?v=3"></script>
+  <script>
+    renderPosterInto(document.getElementById('livePosterPreview'), buildDemoBoard(), {});
+  </script>
 </body>
 </html>
