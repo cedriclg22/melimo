@@ -724,13 +724,13 @@ video { max-width: 100%; border-radius: var(--radius); box-shadow: var(--shadow)
   padding: 150px 20px 20px;
 }
 @media (max-width: 640px) {
-  .top-banner .hero { padding: 100px 20px 20px; }
+  .top-banner .hero { padding: 190px 20px 20px; }
 }
 .top-banner::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: url('image/grand3.jpg') center top / cover no-repeat;
+  background: url('image/grand4.jpg') center top / cover no-repeat;
 }
 .top-banner::after {
   content: '';
@@ -743,7 +743,6 @@ video { max-width: 100%; border-radius: var(--radius); box-shadow: var(--shadow)
   position: relative;
   z-index: 1;
 }
-.top-banner .hero h1,
 .top-banner .hero p {
   text-shadow: 0 2px 18px rgba(255,253,251,.85);
 }
@@ -863,32 +862,39 @@ section.landing.alt .feature { background: var(--secondary); box-shadow: none; }
 .pricing-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  align-items: stretch;
   gap: 20px;
 }
 @media (max-width: 760px) { .pricing-grid { grid-template-columns: 1fr; } }
 .price-card {
+  position: relative;
   background: var(--paper);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 28px 24px;
   text-align: center;
   border: 2px solid transparent;
+  display: flex;
+  flex-direction: column;
 }
 .price-card.featured { border-color: var(--primary); }
 .price-card .badge {
-  display: inline-block;
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
   background: var(--primary);
   color: #fff;
   font-size: .75rem;
   font-weight: 700;
   padding: 3px 12px;
   border-radius: 999px;
-  margin-bottom: 10px;
+  white-space: nowrap;
 }
-.price-card .badge + .amount { display: block; }
 .price-card .amount { font-size: 2.1rem; font-weight: 800; color: var(--primary-dark); }
 .price-card .period { font-size: .9rem; opacity: .6; display: block; margin-bottom: 8px; }
 .price-card p.desc { opacity: .75; font-size: .92rem; min-height: 40px; }
+.price-card .btn { margin-top: auto; }
 
 /* final CTA banner */
 .cta-banner {
