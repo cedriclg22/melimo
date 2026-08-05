@@ -734,7 +734,7 @@ video { max-width: 100%; border-radius: var(--radius); box-shadow: var(--shadow)
   content: '';
   position: absolute;
   inset: 0;
-  background: url('image/grand4.jpg') center 38% no-repeat;
+  background: url('image/grand4.jpg') center 55% no-repeat;
   background-size: max(1920px, 100vw) auto;
 }
 @media (max-width: 640px) {
