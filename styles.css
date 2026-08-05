@@ -828,12 +828,13 @@ section.landing.alt .track { background: var(--secondary); box-shadow: none; }
 @media (max-width: 640px) { .photo-strip { grid-template-columns: 1fr; } }
 .photo-strip img {
   width: 100%;
-  height: 220px;
+  height: 380px;
   object-fit: cover;
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-sm);
   display: block;
 }
+@media (max-width: 640px) { .photo-strip img { height: 300px; } }
 
 /* feature grid */
 .feature-grid {
