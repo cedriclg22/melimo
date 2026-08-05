@@ -734,11 +734,11 @@ video { max-width: 100%; border-radius: var(--radius); box-shadow: var(--shadow)
   content: '';
   position: absolute;
   inset: 0;
-  background: url('image/grand4.jpg') center 55% no-repeat;
+  background: url('image/grand4.jpg') center 70% no-repeat;
   background-size: max(1920px, 100vw) auto;
 }
 @media (max-width: 640px) {
-  .top-banner { height: 620px; }
+  .top-banner { height: 820px; }
   .top-banner::before { background-size: cover; }
 }
 .top-banner::after {
@@ -753,7 +753,10 @@ video { max-width: 100%; border-radius: var(--radius); box-shadow: var(--shadow)
   z-index: 1;
 }
 .top-banner .hero p {
-  text-shadow: 0 2px 18px rgba(255,253,251,.85);
+  color: #fff;
+  font-size: 1.5rem;
+  opacity: 1;
+  text-shadow: 0 2px 14px rgba(0,0,0,.35), 0 1px 4px rgba(0,0,0,.3);
 }
 
 section.landing { padding: 70px 20px; }
