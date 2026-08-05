@@ -186,29 +186,29 @@ function buildDemoBoard() {
   ];
   return {
     photos: [
-      svgPlaceholder('#f1ddd0', '⚽'),
-      svgPlaceholder('#cfe8f0', '🏖️'),
-      svgPlaceholder('#f0d9e4', '👨‍👩‍👧‍👦'),
-      svgPlaceholder('#dcead0', '🌳'),
-      svgPlaceholder('#f6e2b8', '🐚')
+      'image/enfants-babyfoot.jpg',
+      'image/enfants-plage-lunettes.jpg',
+      'image/famille-plage-rochers.jpg',
+      'image/enfants-calin.jpg',
+      'image/bebe-mer.jpg'
     ],
     hiddenObject: 'Un baby-foot',
     hiddenObjectPhoto: 0,
-    hiddenObjectPoint: { x: 58, y: 65 },
+    hiddenObjectPoint: { x: 42, y: 62 },
     hiddenObjectEmoji: '⚽',
     words,
     crossword: generateCrossword(words),
     rebusEmojis: suggestRebus('Bateau'),
     rebusAnswer: 'Bateau',
-    diffPhoto: svgPlaceholder('#dcead0', '🌳'),
+    diffPhoto: 'image/enfants-calin.jpg',
     diffPoint: { x: 62, y: 38 },
-    coverPhoto: svgPlaceholder('#f6e2b8', '🎬'),
+    coverPhoto: 'image/famille-plage-rochers.jpg',
     video: null,
     montage: {
       items: [
-        { type: 'photo', src: svgPlaceholder('#f1ddd0', '⚽'), duration: 2.5 },
-        { type: 'photo', src: svgPlaceholder('#cfe8f0', '🏖️'), duration: 2.5 },
-        { type: 'photo', src: svgPlaceholder('#f0d9e4', '👨‍👩‍👧‍👦'), duration: 2.5 }
+        { type: 'photo', src: 'image/enfants-babyfoot.jpg', duration: 2.5 },
+        { type: 'photo', src: 'image/enfants-plage-lunettes.jpg', duration: 2.5 },
+        { type: 'photo', src: 'image/famille-plage-rochers.jpg', duration: 2.5 }
       ],
       audio: null
     },
