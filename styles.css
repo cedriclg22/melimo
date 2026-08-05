@@ -718,25 +718,25 @@ video { max-width: 100%; border-radius: var(--radius); box-shadow: var(--shadow)
 .top-banner {
   position: relative;
   overflow: hidden;
-  padding-bottom: 60px;
+  padding-bottom: 90px;
 }
 .top-banner .hero {
-  padding: 90px 20px 20px;
+  padding: 150px 20px 20px;
 }
 @media (max-width: 640px) {
-  .top-banner .hero { padding: 60px 20px 20px; }
+  .top-banner .hero { padding: 100px 20px 20px; }
 }
 .top-banner::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: url('image/grand2.jpg') center 45% / cover no-repeat;
+  background: url('image/grand3.jpg') center 35% / cover no-repeat;
 }
 .top-banner::after {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(255,247,240,.45) 0%, rgba(255,247,240,.8) 50%, var(--secondary) 94%);
+  background: linear-gradient(180deg, rgba(255,247,240,.1) 0%, rgba(255,247,240,.55) 60%, var(--secondary) 97%);
 }
 .top-banner > .topbar,
 .top-banner > .hero {
