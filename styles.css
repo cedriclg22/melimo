@@ -718,13 +718,17 @@ video { max-width: 100%; border-radius: var(--radius); box-shadow: var(--shadow)
 .top-banner {
   position: relative;
   overflow: hidden;
-  padding-bottom: 90px;
+  height: 620px;
+  display: flex;
+  flex-direction: column;
 }
+.top-banner .topbar { flex: 0 0 auto; }
 .top-banner .hero {
-  padding: 150px 20px 20px;
-}
-@media (max-width: 640px) {
-  .top-banner .hero { padding: 190px 20px 20px; }
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 20px 20px 50px;
 }
 .top-banner::before {
   content: '';
