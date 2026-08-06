@@ -14,7 +14,8 @@ const state = {
   montage: { items: [], audio: null }, // {items:[{type:'photo'|'video', src, duration, name}], audio:{name,dataUrl}}
   colorPrimary: '#d9527a',
   colorSecondary: '#fbead9',
-  finalWord: ''
+  finalWord: '',
+  frameFormat: 'cadre' // 'cadre' | 'puzzle' (+10€)
 };
 
 const MOSAIC_SPANS = ['span-1', 'span-2', 'span-1', 'span-2', 'span-1', 'span-1'];
@@ -491,6 +492,20 @@ function attachStaticListeners() {
   });
 }
 
+/* ---------- Format : cadre ou puzzle ---------- */
+function renderFormatNote() {
+  const note = document.getElementById('formatNote');
+  note.textContent = state.frameFormat === 'puzzle' ? '+ 10 € ajoutés pour le format puzzle.' : '';
+}
+
+document.querySelectorAll('.format-option').forEach(label => {
+  label.addEventListener('click', () => {
+    state.frameFormat = label.dataset.format;
+    document.querySelectorAll('.format-option').forEach(l => l.classList.toggle('active', l === label));
+    renderFormatNote();
+  });
+});
+
 /* ---------- Générer le tableau ---------- */
 document.getElementById('generateBtn').addEventListener('click', () => {
   if (!state.crossword) state.crossword = currentCrossword();
@@ -576,6 +591,7 @@ function fillDemoData() {
 }
 
 /* init */
+renderFormatNote();
 renderShell();
 attachStaticListeners();
 applyPosterColors();
