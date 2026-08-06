@@ -18,8 +18,8 @@ function render(board) {
     <div class="poster-photos" id="photosGrid"></div>
     <p style="text-align:center;margin:-4px 0 10px;"><a class="btn ghost small" id="posterLink" href="#">🖨️ Voir l'affiche à imprimer</a></p>
 
-    <div class="section-tag"><div class="num">1</div><div class="label">Objet caché : <span id="objAnswer" class="answer-fill"></span></div></div>
-    <p class="hint">Retrouve l'objet caché parmi les photos ci-dessus.</p>
+    <div class="section-tag"><div class="num">1</div><div class="label">Photo intruse : <span id="objAnswer" class="answer-fill"></span></div></div>
+    <p class="hint">Repère quelle photo ci-dessus ne date pas du mois précédent, puis clique sur son numéro.</p>
     <div class="choice-buttons" id="objChoices"></div>
     <div class="feedback" id="objFeedback"></div>
 
@@ -59,25 +59,25 @@ function renderPhotos(board) {
   const photos = (board.photos && board.photos.length) ? board.photos : [null, null, null, null, null, null];
   grid.innerHTML = photos.map((src, i) => {
     if (!src) return `<div class="ph">📷</div>`;
-    const sticker = hiddenObjectStickerHTML(board, i);
-    return sticker ? `<div class="tile-slot"><img src="${src}">${sticker}</div>` : `<img src="${src}">`;
+    return `<div class="tile-slot"><img src="${src}">${photoNumberBadgeHTML(i)}</div>`;
   }).join('');
 }
 
 function renderObjectGuess(board) {
-  const choices = buildChoices(board.hiddenObject || 'Un baby-foot');
+  const total = (board.photos || []).filter(Boolean).length;
+  const correctIndex = board.oddPhotoIndex ?? 0;
   const wrap = document.getElementById('objChoices');
-  wrap.innerHTML = choices.map(c => `<button type="button" data-val="${c}">${c}</button>`).join('');
+  wrap.innerHTML = Array.from({ length: total }, (_, i) => `<button type="button" data-i="${i}">Photo ${i + 1}</button>`).join('');
   wrap.querySelectorAll('button').forEach(btn => {
     btn.addEventListener('click', () => {
-      const correct = btn.dataset.val.toLowerCase() === (board.hiddenObject || '').toLowerCase();
+      const correct = Number(btn.dataset.i) === correctIndex;
       wrap.querySelectorAll('button').forEach(b => b.disabled = true);
       btn.classList.add(correct ? 'correct' : 'wrong');
       const fb = document.getElementById('objFeedback');
       if (correct) {
         fb.textContent = 'Bravo, bien trouvé !';
         fb.className = 'feedback ok';
-        document.getElementById('objAnswer').textContent = board.hiddenObject;
+        document.getElementById('objAnswer').textContent = `Photo ${correctIndex + 1}`;
       } else {
         fb.textContent = 'Raté, essaie encore.';
         fb.className = 'feedback ko';

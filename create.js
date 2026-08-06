@@ -4,10 +4,7 @@
 
 const state = {
   photos: [],
-  hiddenObject: '',
-  hiddenObjectPhoto: null, // index into photos
-  hiddenObjectPoint: null, // {x, y} percent within that photo
-  hiddenObjectEmoji: '',
+  oddPhotoIndex: null, // index into photos: the one that doesn't date from last month
   words: WORD_SUGGESTIONS.map((w, i) => ({ word: w.word, clue: w.clue, key: i === 0 })),
   crossword: null,
   rebusEmojis: [],
@@ -42,10 +39,10 @@ function renderShell() {
 
         <div class="poster-cols">
           <div class="poster-left-col">
-            <div class="pcard pcard-found clickable" id="edFoundCard" title="Clique pour cacher un objet dans une photo">
-              ${ribbonLabel(1, 'Objet caché')}
-              <div class="pcard-body"><p class="card-instruction">Écris ici l'objet caché dans les photos ci-dessus :</p></div>
-              <input type="text" class="answer-blank-input" id="edHiddenObject" placeholder="ex : un baby-foot" value="${state.hiddenObject}">
+            <div class="pcard pcard-found clickable" id="edFoundCard" title="Clique pour choisir la photo intruse">
+              ${ribbonLabel(1, 'Photo intruse')}
+              <div class="pcard-body"><p class="card-instruction">Quelle photo ne date pas du mois précédent ?</p></div>
+              <div class="answer-blank-input" id="edOddPhotoAnswer">${state.oddPhotoIndex !== null ? `Photo n°${state.oddPhotoIndex + 1}` : ''}</div>
             </div>
             <div class="pcard pcard-rebus clickable" id="edRebusCard" title="Clique pour choisir le rébus">
               ${ribbonLabel(3, 'Rébus')}
@@ -81,12 +78,9 @@ function renderShell() {
     </div>
 
     <div class="inline-editor" id="hiddenObjEditor" hidden>
-      <p class="hint">Un objet est déjà caché par défaut : glisse-le directement sur une photo du pêle-mêle ci-dessus pour le repositionner. Tu peux aussi choisir une autre photo, un autre emplacement ou un autre objet ici :</p>
+      <p class="hint">Choisis, parmi tes photos du pêle-mêle ci-dessus, celle qui ne date pas du mois précédent (une photo plus ancienne, ou au contraire la petite dernière) :</p>
       <div class="hobj-photo-picker" id="hobjPhotoPicker"></div>
-      <div class="hobj-placer" id="hobjPlacer"></div>
-      <p class="hint" style="margin:4px 0 8px;">Objet à cacher :</p>
-      <div class="emoji-picker" id="hobjEmojiPicker"></div>
-      <button class="btn ghost" type="button" id="clearHobjBtn">Retirer l'objet caché</button>
+      <button class="btn ghost" type="button" id="clearHobjBtn">Retirer la sélection</button>
     </div>
 
     <div class="inline-editor" id="wordsEditor" hidden>
@@ -132,21 +126,16 @@ function applyPosterColors() {
 }
 
 /* ---------- Pêle-mêle ---------- */
-function ensureDefaultHiddenObject() {
-  if (state.hiddenObjectPhoto === null && state.photos.length) {
-    state.hiddenObjectPhoto = 0;
-    state.hiddenObjectPoint = { x: 68, y: 72 };
-    state.hiddenObjectEmoji = state.hiddenObjectEmoji || EMOJI_LIBRARY[0];
+function ensureDefaultOddPhoto() {
+  if (state.oddPhotoIndex === null && state.photos.length) {
+    state.oddPhotoIndex = 0;
   }
 }
 function renderMosaicInto() {
   const el = document.getElementById('edMosaic');
-  let html = state.photos.map((src, i) => {
-    const sticker = (state.hiddenObjectPhoto === i && state.hiddenObjectPoint && state.hiddenObjectEmoji)
-      ? `<span class="hobj-sticker draggable" data-i="${i}" style="left:${state.hiddenObjectPoint.x}%; top:${state.hiddenObjectPoint.y}%;" title="Glisse pour repositionner">${state.hiddenObjectEmoji}</span>`
-      : '';
-    return `<div class="tile-slot ${MOSAIC_SPANS[i] || ''}"><img src="${src}">${sticker}<button class="rm" data-i="${i}" type="button">✕</button></div>`;
-  }).join('');
+  let html = state.photos.map((src, i) =>
+    `<div class="tile-slot ${MOSAIC_SPANS[i] || ''}"><img src="${src}"><button class="rm" data-i="${i}" type="button">✕</button></div>`
+  ).join('');
   if (state.photos.length < 6) {
     html += `<label class="tile-add ${MOSAIC_SPANS[state.photos.length] || ''}">+<input type="file" id="mosaicInput" accept="image/*" multiple hidden></label>`;
   }
@@ -156,67 +145,32 @@ function renderMosaicInto() {
       e.stopPropagation();
       const i = Number(btn.dataset.i);
       state.photos.splice(i, 1);
-      if (state.hiddenObjectPhoto === i) {
-        state.hiddenObjectPhoto = null;
-        state.hiddenObjectPoint = null;
-      } else if (state.hiddenObjectPhoto > i) {
-        state.hiddenObjectPhoto -= 1;
+      if (state.oddPhotoIndex === i) {
+        state.oddPhotoIndex = null;
+      } else if (state.oddPhotoIndex !== null && state.oddPhotoIndex > i) {
+        state.oddPhotoIndex -= 1;
       }
-      ensureDefaultHiddenObject();
+      ensureDefaultOddPhoto();
       renderMosaicInto();
       renderHobjPhotoPicker();
-      renderHobjPlacer();
+      renderOddPhotoAnswer();
     });
   });
-  const stickerEl = el.querySelector('.hobj-sticker.draggable');
-  if (stickerEl) attachStickerDrag(stickerEl);
   const input = document.getElementById('mosaicInput');
   if (input) {
     input.addEventListener('change', async (e) => {
       const files = Array.from(e.target.files).slice(0, 6 - state.photos.length);
       for (const f of files) state.photos.push(await fileToDataUrl(f));
-      ensureDefaultHiddenObject();
+      ensureDefaultOddPhoto();
       renderMosaicInto();
       renderHobjPhotoPicker();
-      renderHobjPlacer();
+      renderOddPhotoAnswer();
       e.target.value = '';
     });
   }
 }
-function attachStickerDrag(stickerEl) {
-  const tile = stickerEl.closest('.tile-slot');
-  let dragging = false;
-  const move = (clientX, clientY) => {
-    const rect = tile.getBoundingClientRect();
-    const x = Math.max(4, Math.min(96, ((clientX - rect.left) / rect.width) * 100));
-    const y = Math.max(4, Math.min(96, ((clientY - rect.top) / rect.height) * 100));
-    state.hiddenObjectPoint = { x, y };
-    stickerEl.style.left = x + '%';
-    stickerEl.style.top = y + '%';
-  };
-  stickerEl.addEventListener('pointerdown', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    dragging = true;
-    stickerEl.classList.add('dragging');
-    stickerEl.setPointerCapture(e.pointerId);
-  });
-  stickerEl.addEventListener('pointermove', (e) => {
-    if (!dragging) return;
-    move(e.clientX, e.clientY);
-  });
-  const finish = (e) => {
-    if (!dragging) return;
-    dragging = false;
-    stickerEl.classList.remove('dragging');
-    try { stickerEl.releasePointerCapture(e.pointerId); } catch (err) {}
-    renderHobjPlacer();
-  };
-  stickerEl.addEventListener('pointerup', finish);
-  stickerEl.addEventListener('pointercancel', finish);
-}
 
-/* ---------- Objet caché ---------- */
+/* ---------- Photo intruse ---------- */
 function renderHobjPhotoPicker() {
   const el = document.getElementById('hobjPhotoPicker');
   if (!el) return;
@@ -225,54 +179,22 @@ function renderHobjPhotoPicker() {
     return;
   }
   el.innerHTML = state.photos.map((src, i) =>
-    `<div class="hobj-thumb ${state.hiddenObjectPhoto === i ? 'active' : ''}" data-i="${i}"><img src="${src}"></div>`
+    `<div class="hobj-thumb ${state.oddPhotoIndex === i ? 'active' : ''}" data-i="${i}"><img src="${src}"></div>`
   ).join('');
   el.querySelectorAll('.hobj-thumb').forEach(thumb => {
     thumb.addEventListener('click', () => {
-      state.hiddenObjectPhoto = Number(thumb.dataset.i);
-      state.hiddenObjectPoint = null;
+      state.oddPhotoIndex = Number(thumb.dataset.i);
       renderHobjPhotoPicker();
-      renderHobjPlacer();
-      renderMosaicInto();
+      renderOddPhotoAnswer();
     });
   });
 }
-function renderHobjPlacer() {
-  const el = document.getElementById('hobjPlacer');
+function renderOddPhotoAnswer() {
+  const el = document.getElementById('edOddPhotoAnswer');
   if (!el) return;
-  const idx = state.hiddenObjectPhoto;
-  if (idx === null || idx === undefined || !state.photos[idx]) {
-    el.innerHTML = '<p class="hint">Choisis une photo ci-dessus.</p>';
-    return;
-  }
-  el.innerHTML = `
-    <div class="diff-editor" id="hobjEditorImg">
-      <img src="${state.photos[idx]}">
-      ${state.hiddenObjectPoint && state.hiddenObjectEmoji ? `<span class="hobj-marker-edit" style="left:${state.hiddenObjectPoint.x}%; top:${state.hiddenObjectPoint.y}%;">${state.hiddenObjectEmoji}</span>` : ''}
-    </div>
-  `;
-  document.getElementById('hobjEditorImg').addEventListener('click', (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    state.hiddenObjectPoint = {
-      x: ((e.clientX - rect.left) / rect.width) * 100,
-      y: ((e.clientY - rect.top) / rect.height) * 100
-    };
-    if (!state.hiddenObjectEmoji) state.hiddenObjectEmoji = EMOJI_LIBRARY[0];
-    renderHobjPlacer();
-    renderMosaicInto();
-  });
-}
-function renderHobjEmojiPickerInto() {
-  const el = document.getElementById('hobjEmojiPicker');
-  el.innerHTML = EMOJI_LIBRARY.map(e => `<button type="button" data-emoji="${e}" class="${state.hiddenObjectEmoji === e ? 'active' : ''}">${e}</button>`).join('');
-  el.querySelectorAll('button').forEach(btn => {
-    btn.addEventListener('click', () => {
-      state.hiddenObjectEmoji = btn.dataset.emoji;
-      renderHobjEmojiPickerInto();
-      renderHobjPlacer();
-      renderMosaicInto();
-    });
-  });
+  el.textContent = state.oddPhotoIndex !== null && state.oddPhotoIndex !== undefined
+    ? `Photo n°${state.oddPhotoIndex + 1}`
+    : '';
 }
 
 /* ---------- Mots fléchés ---------- */
@@ -461,7 +383,6 @@ function renderMontageAudioRow() {
 
 /* ---------- Listeners statiques (attachés une fois) ---------- */
 function attachStaticListeners() {
-  document.getElementById('edHiddenObject').addEventListener('input', (e) => state.hiddenObject = e.target.value);
   document.getElementById('edFinalWord').addEventListener('input', (e) => state.finalWord = e.target.value);
   document.getElementById('edRebusAnswer').addEventListener('input', (e) => state.rebusAnswer = e.target.value);
 
@@ -493,13 +414,9 @@ function attachStaticListeners() {
   });
 
   document.getElementById('clearHobjBtn').addEventListener('click', () => {
-    state.hiddenObjectPhoto = null;
-    state.hiddenObjectPoint = null;
-    state.hiddenObjectEmoji = '';
+    state.oddPhotoIndex = null;
     renderHobjPhotoPicker();
-    renderHobjPlacer();
-    renderHobjEmojiPickerInto();
-    renderMosaicInto();
+    renderOddPhotoAnswer();
   });
 
   document.getElementById('addWordBtn').addEventListener('click', () => {
@@ -608,7 +525,6 @@ document.getElementById('generateBtn').addEventListener('click', () => {
 /* ---------- Démo pré-remplie ---------- */
 document.getElementById('demoFillBtn').addEventListener('click', () => {
   fillDemoData();
-  document.getElementById('edHiddenObject').value = state.hiddenObject;
   document.getElementById('edFinalWord').value = state.finalWord;
   document.getElementById('edRebusAnswer').value = state.rebusAnswer;
   document.getElementById('colorPrimaryInput').value = state.colorPrimary;
@@ -616,8 +532,7 @@ document.getElementById('demoFillBtn').addEventListener('click', () => {
   applyPosterColors();
   renderMosaicInto();
   renderHobjPhotoPicker();
-  renderHobjPlacer();
-  renderHobjEmojiPickerInto();
+  renderOddPhotoAnswer();
   renderWordRowsInto();
   renderFlechEditableInto();
   renderRebusEditorSequence();
@@ -636,10 +551,7 @@ function fillDemoData() {
     svgPlaceholder('#dcead0', '🌳'),
     svgPlaceholder('#f6e2b8', '🐚')
   ];
-  state.hiddenObject = 'Un baby-foot';
-  state.hiddenObjectPhoto = 0;
-  state.hiddenObjectPoint = { x: 58, y: 65 };
-  state.hiddenObjectEmoji = '⚽';
+  state.oddPhotoIndex = 4;
   state.words = [
     { word: 'PLAGE', clue: 'On y fait des châteaux de sable', key: true },
     { word: 'FAMILLE', clue: "Ceux qu'on aime", key: false },
@@ -669,8 +581,7 @@ attachStaticListeners();
 applyPosterColors();
 renderMosaicInto();
 renderHobjPhotoPicker();
-renderHobjPlacer();
-renderHobjEmojiPickerInto();
+renderOddPhotoAnswer();
 renderWordRowsInto();
 renderFlechEditableInto();
 renderEmojiPickerInto();

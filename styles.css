@@ -192,29 +192,24 @@ a.step-dot:hover { transform: scale(1.08); border-color: var(--primary); }
 /* editable mosaic tiles */
 .mosaic .tile-slot { position: relative; min-height: 0; min-width: 0; }
 .mosaic .tile-slot img { width: 100%; height: 100%; object-fit: cover; border-radius: 14px; display: block; cursor: pointer; }
-.hobj-sticker {
+.photo-num-badge {
   position: absolute;
-  transform: translate(-50%, -50%);
-  font-size: 1.3rem;
-  filter: drop-shadow(0 1px 2px rgba(0,0,0,.35));
-  pointer-events: none;
+  top: 4px;
+  left: 4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: rgba(58,43,48,.68);
+  color: #fff;
+  font-size: .62rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   z-index: 2;
+  pointer-events: none;
 }
-.hobj-sticker.draggable {
-  pointer-events: auto;
-  cursor: grab;
-  touch-action: none;
-  z-index: 5;
-  font-size: 1.6rem;
-  padding: 6px;
-  margin: -6px;
-  border-radius: 50%;
-  box-shadow: 0 0 0 3px rgba(255,255,255,.75), 0 0 0 5px var(--primary);
-  background: rgba(255,255,255,.35);
-  transition: box-shadow .15s ease;
-}
-.hobj-sticker.draggable:hover { box-shadow: 0 0 0 3px rgba(255,255,255,.9), 0 0 0 6px var(--primary); }
-.hobj-sticker.draggable.dragging { cursor: grabbing; box-shadow: 0 0 0 3px #fff, 0 0 0 7px var(--primary-dark); }
 .mosaic .tile-slot .rm {
   position: absolute; top: 4px; right: 4px;
   background: rgba(0,0,0,.55); color: #fff; border: none;
@@ -461,7 +456,7 @@ a.step-dot:hover { transform: scale(1.08); border-color: var(--primary); }
 .color-pick { display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .color-pick input[type=color] { width: 60px; height: 60px; border: none; border-radius: 50%; cursor: pointer; background: none; }
 
-/* --- Hidden object placer --- */
+/* --- Photo intruse picker --- */
 .hobj-photo-picker {
   display: flex;
   gap: 8px;
@@ -478,15 +473,6 @@ a.step-dot:hover { transform: scale(1.08); border-color: var(--primary); }
 }
 .hobj-photo-picker .hobj-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .hobj-photo-picker .hobj-thumb.active { border-color: var(--primary); opacity: 1; }
-.hobj-placer { display: flex; justify-content: center; margin-bottom: 14px; }
-.hobj-placer .diff-editor { width: 70%; max-width: 240px; cursor: crosshair; }
-.hobj-marker-edit {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  font-size: 1.8rem;
-  filter: drop-shadow(0 2px 3px rgba(0,0,0,.4));
-  pointer-events: none;
-}
 
 /* --- Rebus suggestion --- */
 .rebus-suggest-row { display: flex; gap: 8px; margin-bottom: 14px; }
@@ -566,7 +552,7 @@ a.step-dot:hover { transform: scale(1.08); border-color: var(--primary); }
   font-size: 2rem;
 }
 .poster-photos .tile-slot { position: relative; width: 100%; height: 100%; }
-.poster-photos .hobj-sticker { font-size: 2rem; }
+.poster-photos .photo-num-badge { width: 26px; height: 26px; font-size: .95rem; }
 
 .section-tag {
   display: flex;

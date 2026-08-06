@@ -192,10 +192,7 @@ function buildDemoBoard() {
       'image/enfants-calin.jpg',
       'image/bebe-mer.jpg'
     ],
-    hiddenObject: 'Un baby-foot',
-    hiddenObjectPhoto: 0,
-    hiddenObjectPoint: { x: 42, y: 62 },
-    hiddenObjectEmoji: '⚽',
+    oddPhotoIndex: 4,
     words,
     crossword: generateCrossword(words),
     rebusEmojis: suggestRebus('Bateau'),
@@ -242,10 +239,8 @@ function applyBoardColors(board) {
 }
 
 /* ---------- Rendu de l'affiche (partagé entre poster.html et l'aperçu en direct de create.html) ---------- */
-function hiddenObjectStickerHTML(board, photoIndex) {
-  if (board.hiddenObjectPhoto !== photoIndex || !board.hiddenObjectPoint || !board.hiddenObjectEmoji) return '';
-  const p = board.hiddenObjectPoint;
-  return `<span class="hobj-sticker" style="left:${p.x}%; top:${p.y}%;">${board.hiddenObjectEmoji}</span>`;
+function photoNumberBadgeHTML(photoIndex) {
+  return `<span class="photo-num-badge">${photoIndex + 1}</span>`;
 }
 
 function posterMosaicHTML(board) {
@@ -253,7 +248,7 @@ function posterMosaicHTML(board) {
   const spans = ['span-1', 'span-2', 'span-1', 'span-2', 'span-1', 'span-1'];
   return photos.map((src, i) =>
     src
-      ? `<div class="tile-slot ${spans[i] || ''}"><img src="${src}">${hiddenObjectStickerHTML(board, i)}</div>`
+      ? `<div class="tile-slot ${spans[i] || ''}"><img src="${src}">${photoNumberBadgeHTML(i)}</div>`
       : `<div class="ph ${spans[i] || ''}">📷</div>`
   ).join('');
 }
@@ -319,8 +314,8 @@ function renderPosterInto(container, board, opts = {}) {
       <div class="poster-cols">
         <div class="poster-left-col">
           <div class="pcard pcard-found">
-            ${ribbonLabel(1, 'Objet caché')}
-            <div class="pcard-body"><p class="card-instruction">Écris ici l'objet trouvé :</p></div>
+            ${ribbonLabel(1, 'Photo intruse')}
+            <div class="pcard-body"><p class="card-instruction">Quelle photo ne date pas du mois précédent ? Écris son numéro :</p></div>
             <div class="answer-blank"></div>
           </div>
           <div class="pcard pcard-rebus">
