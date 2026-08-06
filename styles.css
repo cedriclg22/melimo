@@ -793,9 +793,46 @@ section.landing.alt { background: var(--paper); }
 }
 section.landing.alt .track { background: var(--secondary); box-shadow: none; }
 .track h3 { color: var(--primary-dark); display: flex; align-items: center; gap: 10px; }
-.track ol { margin: 16px 0 0; padding-left: 22px; }
-.track li { margin-bottom: 12px; line-height: 1.4; }
-.track li b { color: var(--primary-dark); }
+.track ol.steps {
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
+}
+.track .steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  position: relative;
+  padding-bottom: 20px;
+}
+.track .steps li:last-child { padding-bottom: 0; }
+.track .steps li::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 32px;
+  bottom: 2px;
+  width: 2px;
+  background: repeating-linear-gradient(to bottom, #e9cdd8 0 4px, transparent 4px 8px);
+}
+.track .steps li:last-child::before { display: none; }
+.step-num {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 800;
+  font-size: .9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+.step-body { flex: 1; line-height: 1.4; padding-top: 4px; }
+.step-icon { margin-right: 6px; font-size: 1.05rem; }
+.track .steps li b { color: var(--primary-dark); }
 .track-photo {
   width: 100%;
   height: 200px;
