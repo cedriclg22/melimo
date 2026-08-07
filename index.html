@@ -7,7 +7,7 @@
 <meta name="description" content="Melimo : un tableau familial personnalisé avec photos, mini-jeux et vidéo surprise, à envoyer à ceux que vous aimez.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=15">
+<link rel="stylesheet" href="styles.css?v=16">
 </head>
 <body>
   <div class="top-banner">
@@ -204,22 +204,30 @@
         <span class="kicker">Tarifs envisagés</span>
         <h2>Un format pour chaque famille</h2>
       </div>
+
+      <div class="product-toggle">
+        <button type="button" class="product-tab active" data-product="cadre">🖼️ Cadre</button>
+        <button type="button" class="product-tab" data-product="puzzle">🧩 Puzzle personnalisé <span class="tab-tag">+10 €</span></button>
+        <button type="button" class="product-tab" data-product="both">🎁 Les deux <span class="tab-tag">-10 €</span></button>
+      </div>
+      <p class="hint" id="productHint"></p>
+
       <div class="pricing-grid">
         <div class="price-card">
-          <span class="amount">29,90 €</span>
+          <span class="amount" id="priceUnique">29,90 €</span>
           <span class="period">création unique</span>
           <p class="desc">Pour un anniversaire ou une occasion spéciale, sans engagement.</p>
           <a class="btn ghost small" href="create.html">Créer mon tableau</a>
         </div>
         <div class="price-card">
-          <span class="amount">24,90 €</span>
+          <span class="amount" id="priceBimonthly">24,90 €</span>
           <span class="period">tous les deux mois</span>
           <p class="desc">Un nouveau tableau régulièrement, sans y penser à chaque fois.</p>
           <a class="btn ghost small" href="create.html">Créer mon tableau</a>
         </div>
         <div class="price-card featured">
           <span class="badge">Le plus populaire</span>
-          <span class="amount">19,90 €</span>
+          <span class="amount" id="priceMonthly">19,90 €</span>
           <span class="period">par mois</span>
           <p class="desc">Un tableau chaque mois pour ne jamais manquer un souvenir.</p>
           <a class="btn small" href="create.html">Créer mon tableau</a>
@@ -247,6 +255,41 @@
   <script src="app.js?v=5"></script>
   <script>
     renderPosterInto(document.getElementById('livePosterPreview'), buildDemoBoard(), {});
+
+    const PRICING = {
+      cadre: {
+        unique: 29.90, bimonthly: 24.90, monthly: 19.90,
+        hint: 'Le tableau-cadre classique : photos, mini-jeux et vidéo surprise, envoyé imprimé et prêt à accrocher.'
+      },
+      puzzle: {
+        unique: 39.90, bimonthly: 34.90, monthly: 29.90,
+        hint: 'Un puzzle personnalisé avec une ou plusieurs de vos photos, envoyé selon le même rythme que le cadre.'
+      },
+      both: {
+        unique: 59.80, bimonthly: 49.80, monthly: 39.80,
+        hint: 'Cadre et puzzle envoyés ensemble à chaque livraison — 10 € offerts sur l’abonnement combiné.'
+      }
+    };
+
+    function formatPrice(n) {
+      return n.toFixed(2).replace('.', ',') + ' €';
+    }
+
+    function selectProduct(product) {
+      const p = PRICING[product];
+      document.getElementById('priceUnique').textContent = formatPrice(p.unique);
+      document.getElementById('priceBimonthly').textContent = formatPrice(p.bimonthly);
+      document.getElementById('priceMonthly').textContent = formatPrice(p.monthly);
+      document.getElementById('productHint').textContent = p.hint;
+      document.querySelectorAll('.product-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.product === product);
+      });
+    }
+
+    document.querySelectorAll('.product-tab').forEach(tab => {
+      tab.addEventListener('click', () => selectProduct(tab.dataset.product));
+    });
+    selectProduct('cadre');
   </script>
 </body>
 </html>

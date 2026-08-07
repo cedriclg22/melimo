@@ -912,6 +912,34 @@ section.landing.alt .feature { background: var(--secondary); box-shadow: none; }
 .compare .col .big { font-size: 2.2rem; margin-bottom: 8px; }
 .compare .col.us { color: var(--primary-dark); font-weight: 700; }
 
+/* product toggle (cadre / puzzle / les deux) */
+.product-toggle {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 18px 0 4px;
+}
+.product-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 2px solid #eeddd0;
+  background: var(--paper);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: .92rem;
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color .15s, background .15s, color .15s;
+}
+.product-tab .tab-tag { font-size: .75rem; font-weight: 800; opacity: .65; }
+.product-tab.active { border-color: var(--primary); background: var(--primary); color: #fff; }
+.product-tab.active .tab-tag { opacity: 1; }
+#productHint { text-align: center; min-height: 1.2em; margin: 4px 0 18px; }
+
 /* pricing cards */
 .pricing-grid {
   display: grid;
