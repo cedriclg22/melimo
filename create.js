@@ -88,7 +88,7 @@ function renderShell() {
       <div id="wordRows"></div>
       <div class="words-editor-actions">
         <button class="btn ghost" type="button" id="addWordBtn">+ Ajouter un mot</button>
-        <button class="btn ghost" type="button" id="suggestWordsBtn">💡 Idées de mots</button>
+        <button class="btn ghost" type="button" id="suggestWordsBtn"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6.5 6.5 0 0 0-3.8 11.8c.6.4.8 1 .8 1.7v.5h6v-.5c0-.7.2-1.3.8-1.7A6.5 6.5 0 0 0 12 3z"/></svg> Idées de mots</button>
       </div>
     </div>
 
@@ -96,7 +96,7 @@ function renderShell() {
       <p class="hint">Tape le mot à deviner et clique sur « Suggérer » pour générer un rébus automatiquement, ou compose-le toi-même avec les emojis ci-dessous (écris la réponse directement sur le tableau).</p>
       <div class="rebus-suggest-row">
         <input type="text" id="rebusWordInput" placeholder="Mot à représenter (ex : bateau)">
-        <button class="btn ghost" type="button" id="suggestRebusBtn">✨ Suggérer</button>
+        <button class="btn ghost" type="button" id="suggestRebusBtn"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z"/><path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7.7-2z"/></svg> Suggérer</button>
       </div>
       <div class="rebus-sequence" id="rebusSequence"></div>
       <div class="emoji-picker" id="emojiPicker"></div>
@@ -327,7 +327,7 @@ function renderMontageSummary() {
   if (photoCount) parts.push(`${photoCount} photo${photoCount > 1 ? 's' : ''}`);
   if (videoCount) parts.push(`${videoCount} vidéo${videoCount > 1 ? 's' : ''}`);
   if (state.montage.audio) parts.push('musique');
-  el.innerHTML = `🎬 ${parts.join(' + ')}<br><span style="font-weight:500; opacity:.7;">(clique pour modifier)</span>`;
+  el.innerHTML = `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5l1.3-3.8a1.5 1.5 0 0 1 1.9-.9l12.6 4.2a1.5 1.5 0 0 1 .95 1.9L19.2 12H3V9.5z"/><path d="M6.5 5.3L8 9.5M11.5 6.9L13 11.1"/><rect x="3" y="12" width="18" height="8" rx="2"/></svg> ${parts.join(' + ')}<br><span style="font-weight:500; opacity:.7;">(clique pour modifier)</span>`;
 }
 function renderMontageItemsInto() {
   const wrap = document.getElementById('montageItemsList');
@@ -338,7 +338,7 @@ function renderMontageItemsInto() {
   }
   wrap.innerHTML = state.montage.items.map((it, i) => `
     <div class="montage-row">
-      <div class="montage-thumb">${it.type === 'video' ? '🎬' : `<img src="${it.src}">`}</div>
+      <div class="montage-thumb">${it.type === 'video' ? '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5l1.3-3.8a1.5 1.5 0 0 1 1.9-.9l12.6 4.2a1.5 1.5 0 0 1 .95 1.9L19.2 12H3V9.5z"/><path d="M6.5 5.3L8 9.5M11.5 6.9L13 11.1"/><rect x="3" y="12" width="18" height="8" rx="2"/></svg>' : `<img src="${it.src}">`}</div>
       <div class="montage-meta">
         <span>${it.type === 'video' ? ('Vidéo' + (it.name ? ' — ' + it.name : '')) : 'Photo'}</span>
         ${it.type === 'photo' ? `<label>Durée <input type="number" min="0.5" step="0.5" value="${it.duration}" data-dur="${i}"> s</label>` : ''}
@@ -375,7 +375,7 @@ function renderMontageAudioRow() {
   const wrap = document.getElementById('montageAudioRow');
   if (!wrap) return;
   wrap.innerHTML = state.montage.audio
-    ? `<p class="hint" style="margin:0 0 10px;">🎵 ${state.montage.audio.name} <button type="button" id="montageAudioDel" style="margin-left:6px; background:#f5dbe1; border:none; border-radius:50%; width:22px; height:22px; cursor:pointer;">✕</button></p>`
+    ? `<p class="hint" style="margin:0 0 10px;"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg> ${state.montage.audio.name} <button type="button" id="montageAudioDel" style="margin-left:6px; background:#f5dbe1; border:none; border-radius:50%; width:22px; height:22px; cursor:pointer;">✕</button></p>`
     : '';
   const del = document.getElementById('montageAudioDel');
   if (del) del.addEventListener('click', () => { state.montage.audio = null; renderMontageAudioRow(); renderMontageSummary(); });

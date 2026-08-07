@@ -332,6 +332,8 @@ a.step-dot:hover { transform: scale(1.08); border-color: var(--primary); }
 .btn.ghost:hover { background: #fdf0f4; box-shadow: var(--shadow-sm); }
 .btn:disabled { opacity: .4; cursor: not-allowed; transform: none; box-shadow: none; }
 
+.icon { width: 1.1em; height: 1.1em; flex-shrink: 0; vertical-align: -0.16em; }
+
 .actions {
   display: flex;
   justify-content: space-between;
@@ -505,9 +507,10 @@ a.step-dot:hover { transform: scale(1.08); border-color: var(--primary); }
   overflow: hidden;
   background: #e9cdd8;
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.3rem;
+  color: var(--primary-dark);
   flex-shrink: 0;
 }
+.montage-thumb .icon { width: 22px; height: 22px; }
 .montage-thumb img { width: 100%; height: 100%; object-fit: cover; }
 .montage-meta { flex: 1; display: flex; flex-direction: column; gap: 2px; font-size: .85rem; min-width: 0; }
 .montage-meta label { display: flex; align-items: center; gap: 4px; font-size: .78rem; opacity: .75; }
@@ -552,6 +555,7 @@ a.step-dot:hover { transform: scale(1.08); border-color: var(--primary); }
   font-size: 2rem;
 }
 .poster-photos .tile-slot { position: relative; width: 100%; height: 100%; }
+.ph svg { width: 36%; height: 36%; opacity: .55; }
 .poster-photos .photo-num-badge { width: 26px; height: 26px; font-size: .95rem; }
 
 .section-tag {
@@ -816,7 +820,7 @@ section.landing.alt .track { background: var(--secondary); box-shadow: none; }
   box-shadow: var(--shadow-sm);
   z-index: 1;
 }
-.step-icon { font-size: 1.5rem; filter: drop-shadow(0 1px 1px rgba(0,0,0,.08)); }
+.step-icon { width: 24px; height: 24px; color: var(--primary-dark); filter: drop-shadow(0 1px 1px rgba(0,0,0,.08)); }
 .step-num {
   position: absolute;
   bottom: -3px;
@@ -892,7 +896,7 @@ section.landing.alt .step-num { border-color: var(--secondary); }
   box-shadow: var(--shadow);
 }
 section.landing.alt .feature { background: var(--secondary); box-shadow: none; }
-.feature .emoji { font-size: 1.8rem; display: block; margin-bottom: 8px; }
+.feature .emoji { width: 28px; height: 28px; display: block; margin-bottom: 8px; color: var(--primary-dark); }
 .feature h4 { margin: 0 0 6px; color: var(--primary-dark); font-size: 1.05rem; }
 .feature p { margin: 0; opacity: .75; font-size: .92rem; line-height: 1.4; }
 
@@ -909,8 +913,9 @@ section.landing.alt .feature { background: var(--secondary); box-shadow: none; }
   text-align: center;
 }
 .compare .col { max-width: 260px; }
-.compare .col .big { font-size: 2.2rem; margin-bottom: 8px; }
+.compare .col .big { width: 42px; height: 42px; margin: 0 auto 8px; color: var(--ink); display: block; }
 .compare .col.us { color: var(--primary-dark); font-weight: 700; }
+.compare .col.us .big { color: var(--primary-dark); }
 
 /* product toggle (cadre / puzzle / les deux) */
 .product-toggle {
@@ -945,7 +950,7 @@ section.landing.alt .feature { background: var(--secondary); box-shadow: none; }
   transform: scale(1.05);
   opacity: 1;
 }
-.product-tab .tab-icon { font-size: 2rem; line-height: 1; }
+.product-tab .tab-icon { width: 32px; height: 32px; color: var(--primary-dark); }
 .product-tab .tab-name { font-weight: 800; font-size: .95rem; text-align: center; }
 .product-tab .tab-tag {
   font-size: .72rem;

@@ -249,7 +249,7 @@ function posterMosaicHTML(board) {
   return photos.map((src, i) =>
     src
       ? `<div class="tile-slot ${spans[i] || ''}"><img src="${src}">${photoNumberBadgeHTML(i)}</div>`
-      : `<div class="ph ${spans[i] || ''}">📷</div>`
+      : `<div class="ph ${spans[i] || ''}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="14" rx="3"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/></svg></div>`
   ).join('');
 }
 
@@ -289,7 +289,7 @@ function posterRebusHTML(board) {
 
 function posterDiffHTML(board) {
   const src = board.diffPhoto || '';
-  const frame = `<div class="diff-frame-print">${src ? `<img src="${src}">` : '<div class="ph">📷</div>'}<div class="grid-lines"></div></div>`;
+  const frame = `<div class="diff-frame-print">${src ? `<img src="${src}">` : '<div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="14" rx="3"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/></svg></div>'}<div class="grid-lines"></div></div>`;
   return frame + frame;
 }
 

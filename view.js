@@ -16,7 +16,7 @@ if (!board) {
 function render(board) {
   root.innerHTML = `
     <div class="poster-photos" id="photosGrid"></div>
-    <p style="text-align:center;margin:-4px 0 10px;"><a class="btn ghost small" id="posterLink" href="#">🖨️ Voir l'affiche à imprimer</a></p>
+    <p style="text-align:center;margin:-4px 0 10px;"><a class="btn ghost small" id="posterLink" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V4h12v5"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/></svg> Voir l'affiche à imprimer</a></p>
 
     <div class="section-tag"><div class="num">1</div><div class="label">Photo intruse : <span id="objAnswer" class="answer-fill"></span></div></div>
     <p class="hint">Repère quelle photo ci-dessus ne date pas du mois précédent, puis clique sur son numéro.</p>
@@ -58,7 +58,7 @@ function renderPhotos(board) {
   const grid = document.getElementById('photosGrid');
   const photos = (board.photos && board.photos.length) ? board.photos : [null, null, null, null, null, null];
   grid.innerHTML = photos.map((src, i) => {
-    if (!src) return `<div class="ph">📷</div>`;
+    if (!src) return `<div class="ph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="14" rx="3"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/></svg></div>`;
     return `<div class="tile-slot"><img src="${src}">${photoNumberBadgeHTML(i)}</div>`;
   }).join('');
 }
@@ -248,10 +248,10 @@ function renderFinal(board) {
 function showVideo(board) {
   const el = document.getElementById('videoSection');
   if (board.montage && board.montage.items && board.montage.items.length) {
-    el.innerHTML = `<div class="video-block"><h2>🎬 Le montage surprise</h2><div id="montagePlayerReveal" class="montage-player"></div></div>`;
+    el.innerHTML = `<div class="video-block"><h2><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5l1.3-3.8a1.5 1.5 0 0 1 1.9-.9l12.6 4.2a1.5 1.5 0 0 1 .95 1.9L19.2 12H3V9.5z"/><path d="M6.5 5.3L8 9.5M11.5 6.9L13 11.1"/><rect x="3" y="12" width="18" height="8" rx="2"/></svg> Le montage surprise</h2><div id="montagePlayerReveal" class="montage-player"></div></div>`;
     renderMontagePlayer(document.getElementById('montagePlayerReveal'), board.montage, { uid: 'reveal' });
   } else if (board.video && board.video.dataUrl) {
-    el.innerHTML = `<div class="video-block"><h2>🎬 Vidéo surprise</h2><video controls autoplay src="${board.video.dataUrl}"></video></div>`;
+    el.innerHTML = `<div class="video-block"><h2><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5l1.3-3.8a1.5 1.5 0 0 1 1.9-.9l12.6 4.2a1.5 1.5 0 0 1 .95 1.9L19.2 12H3V9.5z"/><path d="M6.5 5.3L8 9.5M11.5 6.9L13 11.1"/><rect x="3" y="12" width="18" height="8" rx="2"/></svg> Vidéo surprise</h2><video controls autoplay src="${board.video.dataUrl}"></video></div>`;
   } else {
     el.innerHTML = `<div class="video-block">
       <button class="play-btn" type="button">▶</button>
