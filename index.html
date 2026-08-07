@@ -7,7 +7,7 @@
 <meta name="description" content="Melimo : un tableau familial personnalisé avec photos, mini-jeux et vidéo surprise, à envoyer à ceux que vous aimez.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=17">
+<link rel="stylesheet" href="styles.css?v=18">
 </head>
 <body>
   <div class="top-banner">
@@ -206,9 +206,21 @@
       </div>
 
       <div class="product-toggle">
-        <button type="button" class="product-tab active" data-product="cadre">🖼️ Cadre</button>
-        <button type="button" class="product-tab" data-product="puzzle">🧩 Puzzle personnalisé <span class="tab-tag">+10 €</span></button>
-        <button type="button" class="product-tab" data-product="both">🎁 Les deux <span class="tab-tag">-10 €</span></button>
+        <button type="button" class="product-tab active" data-product="cadre" style="--tab-color:#f8d9c9">
+          <span class="tab-icon">🖼️</span>
+          <span class="tab-name">Cadre</span>
+          <span class="tab-tag">Inclus</span>
+        </button>
+        <button type="button" class="product-tab" data-product="puzzle" style="--tab-color:#cfe8f0">
+          <span class="tab-icon">🧩</span>
+          <span class="tab-name">Puzzle personnalisé</span>
+          <span class="tab-tag">+10 €</span>
+        </button>
+        <button type="button" class="product-tab" data-product="both" style="--tab-color:#f6e2b8">
+          <span class="tab-icon">🎁</span>
+          <span class="tab-name">Les deux</span>
+          <span class="tab-tag">-10 €</span>
+        </button>
       </div>
       <p class="hint" id="productHint"></p>
 

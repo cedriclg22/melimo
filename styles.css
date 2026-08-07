@@ -915,32 +915,46 @@ section.landing.alt .feature { background: var(--secondary); box-shadow: none; }
 /* product toggle (cadre / puzzle / les deux) */
 .product-toggle {
   display: flex;
-  gap: 10px;
+  gap: 16px;
   justify-content: center;
   flex-wrap: wrap;
-  margin: 18px 0 4px;
+  margin: 22px 0 6px;
 }
 .product-tab {
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 6px;
-  padding: 10px 18px;
-  border-radius: 999px;
-  border: 2px solid transparent;
-  background: var(--paper);
+  width: 152px;
+  padding: 18px 12px 16px;
+  border-radius: var(--radius);
+  border: 3px solid transparent;
+  background: var(--tab-color, var(--paper));
   box-shadow: var(--shadow-sm);
   font-family: inherit;
-  font-weight: 700;
-  font-size: .92rem;
-  color: var(--ink);
-  opacity: .7;
+  color: var(--primary-dark);
   cursor: pointer;
-  transition: border-color .15s, background .15s, color .15s, opacity .15s;
+  transform: scale(.95);
+  opacity: .8;
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease, opacity .2s ease, border-color .2s ease;
 }
-.product-tab .tab-tag { font-size: .75rem; font-weight: 800; color: var(--primary-dark); opacity: .8; }
-.product-tab.active { border-color: var(--primary); background: var(--secondary); color: var(--primary-dark); opacity: 1; }
-.product-tab.active .tab-tag { opacity: 1; }
-#productHint { text-align: center; min-height: 1.2em; margin: 4px 0 18px; }
+.product-tab:hover { transform: scale(1); opacity: 1; }
+.product-tab.active {
+  border-color: var(--primary);
+  box-shadow: var(--shadow);
+  transform: scale(1.05);
+  opacity: 1;
+}
+.product-tab .tab-icon { font-size: 2rem; line-height: 1; }
+.product-tab .tab-name { font-weight: 800; font-size: .95rem; text-align: center; }
+.product-tab .tab-tag {
+  font-size: .72rem;
+  font-weight: 800;
+  padding: 3px 11px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.75);
+}
+#productHint { text-align: center; min-height: 1.2em; margin: 14px 0 20px; font-weight: 600; opacity: .75; }
 
 /* pricing cards */
 .pricing-grid {
